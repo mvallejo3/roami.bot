@@ -17,21 +17,33 @@ export interface ChatStreamOptions {
   onError?: (error: Error) => void;
 }
 
+export interface ChatServiceConfig {
+  apiUrl: string;
+  apiKey: string;
+  model: string;
+}
+
 export class ChatService {
   private client: OpenAI | null = null;
   private abortController: AbortController | null = null;
+  private config: ChatServiceConfig | null = null;
 
-  constructor() {
-    this.initializeClient();
+  constructor(config?: ChatServiceConfig) {
+    if (config) {
+      this.config = config;
+      this.initializeClient(config);
+    } else {
+      this.initializeClient();
+    }
   }
 
-  private initializeClient() {
-    const apiUrl = process.env.NEXT_PUBLIC_OPENAI_API_URL;
-    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+  private initializeClient(config?: ChatServiceConfig) {
+    const apiUrl = config?.apiUrl || process.env.NEXT_PUBLIC_OPENAI_API_URL;
+    const apiKey = config?.apiKey || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
 
     if (!apiUrl || !apiKey) {
       console.warn(
-        "OpenAI API URL or API Key not configured. Please set NEXT_PUBLIC_OPENAI_API_URL and NEXT_PUBLIC_OPENAI_API_KEY environment variables."
+        "OpenAI API URL or API Key not configured. Please set NEXT_PUBLIC_OPENAI_API_URL and NEXT_PUBLIC_OPENAI_API_KEY environment variables or provide config."
       );
       return;
     }
@@ -41,6 +53,14 @@ export class ChatService {
       baseURL: apiUrl,
       dangerouslyAllowBrowser: true, // Required for client-side usage
     });
+  }
+
+  /**
+   * Update the service configuration
+   */
+  updateConfig(config: ChatServiceConfig) {
+    this.config = config;
+    this.initializeClient(config);
   }
 
   /**
@@ -62,7 +82,7 @@ export class ChatService {
     this.abortController = new AbortController();
 
     try {
-      const model = process.env.NEXT_PUBLIC_OPENAI_MODEL || "gpt-4";
+      const model = this.config?.model || process.env.NEXT_PUBLIC_OPENAI_MODEL || "gpt-4";
       const stream = await this.client.chat.completions.create(
         {
           model: model,

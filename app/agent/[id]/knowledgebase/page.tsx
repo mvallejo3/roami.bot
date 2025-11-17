@@ -1,13 +1,21 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { getFiles, deleteFile, uploadFiles, reindexKnowledgeBase, type FileInfo } from "../actions";
+import { getFiles, deleteFile, uploadFiles, reindexKnowledgeBase, type FileInfo } from "@/app/actions";
 import { useStandalone } from "@/lib/hooks/useStandalone";
+import { getAgent } from "@/lib/services/agentService";
+import type { Agent } from "@/lib/types/agent";
 
 export default function KnowledgebasePage() {
+  const params = useParams();
+  const router = useRouter();
+  const agentId = params.id as string;
+  const [agent, setAgent] = useState<Agent | null>(null);
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingAgent, setIsLoadingAgent] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -17,9 +25,46 @@ export default function KnowledgebasePage() {
   const [isReindexing, setIsReindexing] = useState(false);
   const [reindexError, setReindexError] = useState<string | null>(null);
   const [reindexSuccess, setReindexSuccess] = useState<string | null>(null);
-  const [knowledgeBaseUuid, setKnowledgeBaseUuid] = useState("b0dbc26b-bd20-11f0-b074-4e013e2ddde4");
+  const [knowledgeBaseUuid, setKnowledgeBaseUuid] = useState("");
+
+  useEffect(() => {
+    loadAgent();
+  }, [agentId]);
+
+  useEffect(() => {
+    if (agent?.knowledgeBaseUuid) {
+      setKnowledgeBaseUuid(agent.knowledgeBaseUuid);
+    }
+  }, [agent]);
+
+  useEffect(() => {
+    if (knowledgeBaseUuid) {
+      fetchFiles();
+    }
+  }, [knowledgeBaseUuid]);
+
+  const loadAgent = () => {
+    try {
+      const loadedAgent = getAgent(agentId);
+      if (!loadedAgent) {
+        router.push("/");
+        return;
+      }
+      setAgent(loadedAgent);
+      if (loadedAgent.knowledgeBaseUuid) {
+        setKnowledgeBaseUuid(loadedAgent.knowledgeBaseUuid);
+      }
+    } catch (error) {
+      console.error("Error loading agent:", error);
+      router.push("/");
+    } finally {
+      setIsLoadingAgent(false);
+    }
+  };
 
   const fetchFiles = async () => {
+    if (!knowledgeBaseUuid) return;
+    
     setIsLoading(true);
     setError(null);
     try {
@@ -32,10 +77,6 @@ export default function KnowledgebasePage() {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchFiles();
-  }, []);
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
@@ -177,21 +218,68 @@ export default function KnowledgebasePage() {
 
   const isStandalone = useStandalone();
 
+  if (isLoadingAgent) {
+    return (
+      <div
+        className="flex flex-col h-screen bg-background text-foreground items-center justify-center"
+        style={{ paddingTop: isStandalone ? "36px" : "0" }}
+      >
+        <div className="flex space-x-2 justify-center mb-4">
+          <div className="w-2 h-2 bg-accent-primary rounded-full animate-bounce"></div>
+          <div
+            className="w-2 h-2 bg-accent-primary rounded-full animate-bounce"
+            style={{ animationDelay: "0.2s" }}
+          ></div>
+          <div
+            className="w-2 h-2 bg-accent-primary rounded-full animate-bounce"
+            style={{ animationDelay: "0.4s" }}
+          ></div>
+        </div>
+        <p className="text-foreground-secondary">Loading agent...</p>
+      </div>
+    );
+  }
+
+  if (!agent) {
+    return null;
+  }
+
   return (
-    <div 
+    <div
       className="flex flex-col h-screen bg-background text-foreground"
       style={{ paddingTop: isStandalone ? "36px" : "0" }}
     >
       {/* Header */}
       <header className="border-b border-divider px-4 py-3 sm:px-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-accent-primary">
-              Knowledgebase
-            </h1>
-            <p className="text-sm text-foreground-secondary mt-1">
-              Manage your knowledgebase files
-            </p>
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/agent/${agentId}`}
+              className="text-foreground-secondary hover:text-foreground transition-colors"
+              aria-label="Back to Agent"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+            </Link>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-semibold text-accent-primary">
+                Knowledgebase
+              </h1>
+              <p className="text-sm text-foreground-secondary mt-1">
+                {agent.name} - Manage your knowledgebase files
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-sm font-medium text-foreground">
@@ -200,7 +288,7 @@ export default function KnowledgebasePage() {
             <Link
               href="/"
               className="bg-accent-primary text-foreground-bright p-2 rounded-lg hover:opacity-90 transition-opacity"
-              aria-label="Go to Home"
+              aria-label="Go to Dashboard"
             >
               <svg
                 className="w-5 h-5"
@@ -223,13 +311,30 @@ export default function KnowledgebasePage() {
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
         <div className="max-w-6xl mx-auto">
-          {isLoading ? (
+          {!knowledgeBaseUuid ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <p className="text-foreground-secondary text-lg mb-2">
+                  No knowledge base configured
+                </p>
+                <p className="text-foreground-secondary text-sm">
+                  Please configure a knowledge base UUID for this agent
+                </p>
+              </div>
+            </div>
+          ) : isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <div className="flex space-x-2 justify-center mb-4">
                   <div className="w-2 h-2 bg-accent-primary rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-accent-primary rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                  <div className="w-2 h-2 bg-accent-primary rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                  <div
+                    className="w-2 h-2 bg-accent-primary rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 bg-accent-primary rounded-full animate-bounce"
+                    style={{ animationDelay: "0.4s" }}
+                  ></div>
                 </div>
                 <p className="text-foreground-secondary">Loading files...</p>
               </div>
@@ -247,7 +352,9 @@ export default function KnowledgebasePage() {
           ) : files.length === 0 ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
-                <p className="text-foreground-secondary text-lg mb-2">No files found</p>
+                <p className="text-foreground-secondary text-lg mb-2">
+                  No files found
+                </p>
                 <p className="text-foreground-secondary text-sm">
                   Your knowledgebase is empty
                 </p>
@@ -323,69 +430,155 @@ export default function KnowledgebasePage() {
           )}
 
           {/* Re-index Section */}
-          <div className="mt-6">
-            <div className="bg-background-secondary border border-divider rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-foreground mb-4">
-                Re-index Knowledge Base
-              </h2>
-              <p className="text-sm text-foreground-secondary mb-4">
-                Re-index your knowledge base to update search results and improve accuracy.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <input
-                  type="text"
-                  value={knowledgeBaseUuid}
-                  onChange={(e) => setKnowledgeBaseUuid(e.target.value)}
-                  placeholder="Enter knowledge base UUID"
-                  className="flex-1 px-4 py-2 bg-background border border-divider rounded-lg text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
-                  disabled={isReindexing}
-                />
-                <button
-                  onClick={handleReindex}
-                  disabled={isReindexing || !knowledgeBaseUuid.trim()}
-                  className={`inline-flex items-center justify-center px-6 py-2 rounded-lg font-medium transition-colors ${
-                    isReindexing || !knowledgeBaseUuid.trim()
-                      ? "bg-background-deep text-foreground-secondary cursor-not-allowed"
-                      : "bg-accent-primary text-foreground-bright hover:opacity-90"
-                  }`}
-                >
-                  {isReindexing ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-foreground-secondary border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Re-indexing...
-                    </>
-                  ) : (
-                    <>
-                      <svg
-                        className="w-5 h-5 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                        />
-                      </svg>
-                      Re-index
-                    </>
-                  )}
-                </button>
+          {knowledgeBaseUuid && (
+            <div className="mt-6">
+              <div className="bg-background-secondary border border-divider rounded-lg p-6">
+                <h2 className="text-lg font-semibold text-foreground mb-4">
+                  Re-index Knowledge Base
+                </h2>
+                <p className="text-sm text-foreground-secondary mb-4">
+                  Re-index your knowledge base to update search results and
+                  improve accuracy.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <input
+                    type="text"
+                    value={knowledgeBaseUuid}
+                    onChange={(e) => setKnowledgeBaseUuid(e.target.value)}
+                    placeholder="Enter knowledge base UUID"
+                    className="flex-1 px-4 py-2 bg-background border border-divider rounded-lg text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
+                    disabled={isReindexing}
+                  />
+                  <button
+                    onClick={handleReindex}
+                    disabled={isReindexing || !knowledgeBaseUuid.trim()}
+                    className={`inline-flex items-center justify-center px-6 py-2 rounded-lg font-medium transition-colors ${
+                      isReindexing || !knowledgeBaseUuid.trim()
+                        ? "bg-background-deep text-foreground-secondary cursor-not-allowed"
+                        : "bg-accent-primary text-foreground-bright hover:opacity-90"
+                    }`}
+                  >
+                    {isReindexing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-foreground-secondary border-t-transparent rounded-full animate-spin mr-2"></div>
+                        Re-indexing...
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          className="w-5 h-5 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                          />
+                        </svg>
+                        Re-index
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Re-index Messages */}
+                {reindexSuccess && (
+                  <div className="mt-4 bg-background-secondary border border-accent-primary rounded-lg p-4">
+                    <p className="text-accent-primary text-sm">
+                      {reindexSuccess}
+                    </p>
+                  </div>
+                )}
+                {reindexError && (
+                  <div className="mt-4 bg-background-secondary border border-accent-error rounded-lg p-4">
+                    <p className="text-accent-error text-sm">{reindexError}</p>
+                    <button
+                      onClick={() => setReindexError(null)}
+                      className="text-xs text-accent-error hover:opacity-80 mt-2"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Upload Section */}
+          {knowledgeBaseUuid && (
+            <div className="mt-6">
+              <div
+                className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
+                  isDragging
+                    ? "border-accent-primary bg-accent-primary/10"
+                    : "border-divider bg-background-secondary"
+                }`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <div className="text-center">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    id="file-upload"
+                    disabled={isUploading}
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className={`inline-flex items-center px-4 py-2 rounded-lg font-medium cursor-pointer transition-colors ${
+                      isUploading
+                        ? "bg-background-deep text-foreground-secondary cursor-not-allowed"
+                        : "bg-accent-primary text-foreground-bright hover:opacity-90"
+                    }`}
+                  >
+                    {isUploading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-foreground-secondary border-t-transparent rounded-full animate-spin mr-2"></div>
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          className="w-5 h-5 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 4v16m8-8H4"
+                          />
+                        </svg>
+                        Upload Files
+                      </>
+                    )}
+                  </label>
+                  <p className="text-sm text-foreground-secondary mt-2">
+                    Drag and drop files here, or click to select files
+                  </p>
+                </div>
               </div>
 
-              {/* Re-index Messages */}
-              {reindexSuccess && (
+              {/* Upload Messages */}
+              {uploadSuccess && (
                 <div className="mt-4 bg-background-secondary border border-accent-primary rounded-lg p-4">
-                  <p className="text-accent-primary text-sm">{reindexSuccess}</p>
+                  <p className="text-accent-primary text-sm">{uploadSuccess}</p>
                 </div>
               )}
-              {reindexError && (
+              {uploadError && (
                 <div className="mt-4 bg-background-secondary border border-accent-error rounded-lg p-4">
-                  <p className="text-accent-error text-sm">{reindexError}</p>
+                  <p className="text-accent-error text-sm">{uploadError}</p>
                   <button
-                    onClick={() => setReindexError(null)}
+                    onClick={() => setUploadError(null)}
                     className="text-xs text-accent-error hover:opacity-80 mt-2"
                   >
                     Dismiss
@@ -393,86 +586,7 @@ export default function KnowledgebasePage() {
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Upload Section */}
-          <div className="mt-6">
-            <div
-              className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
-                isDragging
-                  ? "border-accent-primary bg-accent-primary/10"
-                  : "border-divider bg-background-secondary"
-              }`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              <div className="text-center">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  id="file-upload"
-                  disabled={isUploading}
-                />
-                <label
-                  htmlFor="file-upload"
-                  className={`inline-flex items-center px-4 py-2 rounded-lg font-medium cursor-pointer transition-colors ${
-                    isUploading
-                      ? "bg-background-deep text-foreground-secondary cursor-not-allowed"
-                      : "bg-accent-primary text-foreground-bright hover:opacity-90"
-                  }`}
-                >
-                  {isUploading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-foreground-secondary border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <svg
-                        className="w-5 h-5 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                      Upload Files
-                    </>
-                  )}
-                </label>
-                <p className="text-sm text-foreground-secondary mt-2">
-                  Drag and drop files here, or click to select files
-                </p>
-              </div>
-            </div>
-
-            {/* Upload Messages */}
-            {uploadSuccess && (
-              <div className="mt-4 bg-background-secondary border border-accent-primary rounded-lg p-4">
-                <p className="text-accent-primary text-sm">{uploadSuccess}</p>
-              </div>
-            )}
-            {uploadError && (
-              <div className="mt-4 bg-background-secondary border border-accent-error rounded-lg p-4">
-                <p className="text-accent-error text-sm">{uploadError}</p>
-                <button
-                  onClick={() => setUploadError(null)}
-                  className="text-xs text-accent-error hover:opacity-80 mt-2"
-                >
-                  Dismiss
-                </button>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </div>
