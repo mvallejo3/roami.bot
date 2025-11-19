@@ -2,14 +2,16 @@ import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { chatApi } from "./features/chat/chatApi";
 import { agentApi } from "./features/agents/agentApi";
+import { modelApi } from "./features/models/modelApi";
 
 export const store = configureStore({
   reducer: {
     [chatApi.reducerPath]: chatApi.reducer,
     [agentApi.reducerPath]: agentApi.reducer,
+    [modelApi.reducerPath]: modelApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(chatApi.middleware, agentApi.middleware),
+    getDefaultMiddleware().concat(chatApi.middleware, agentApi.middleware, modelApi.middleware),
 });
 
 setupListeners(store.dispatch);

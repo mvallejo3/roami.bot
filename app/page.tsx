@@ -9,6 +9,7 @@ import {
   useCreateAgentMutation,
   useDeleteAgentMutation,
 } from "@/store/features/agents/agentApi";
+import { useListModelsQuery } from "@/store/features/models/modelApi";
 
 const defaultFormData = {
   name: "",
@@ -21,6 +22,7 @@ const defaultFormData = {
 
 export default function DashboardPage() {
   const { data: agentsData, isLoading } = useListAgentsQuery();
+  const { data: modelsData } = useListModelsQuery();
   const [createAgent] = useCreateAgentMutation();
   const [deleteAgent] = useDeleteAgentMutation();
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -309,17 +311,22 @@ export default function DashboardPage() {
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1">
-                  OpenAI Model
+                  AI Model
                 </label>
-                <input
-                  type="text"
+                <select
                   value={formData.openaiModel}
                   onChange={(e) =>
                     setFormData({ ...formData, openaiModel: e.target.value })
                   }
                   className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
-                  placeholder="gpt-4"
-                />
+                >
+                  <option value="">Select a model</option>
+                  {modelsData?.models?.map((model) => (
+                    <option key={model.uuid} value={model.uuid}>
+                      {model.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex gap-3 pt-4">

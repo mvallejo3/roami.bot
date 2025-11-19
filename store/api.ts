@@ -4,4 +4,5 @@
  */
 export { chatApi as botPilotApi } from "./features/chat/chatApi";
 export { agentApi } from "./features/agents/agentApi";
+export { modelApi } from "./features/models/modelApi";
 
