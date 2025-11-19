@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useStandalone } from "@/lib/hooks/useStandalone";
 import {
@@ -9,20 +8,11 @@ import {
   useCreateAgentMutation,
   useDeleteAgentMutation,
 } from "@/store/features/agents/agentApi";
-import { useListModelsQuery } from "@/store/features/models/modelApi";
-
-const defaultFormData = {
-  name: "",
-  description: "",
-  instructions: "",
-  openaiApiUrl: "",
-  openaiApiKey: "",
-  openaiModel: "",
-}
+import NewAgentForm from "@/components/NewAgentForm";
+import type { CreateAgentInput } from "@/lib/types/agent";
 
 export default function DashboardPage() {
   const { data: agentsData, isLoading } = useListAgentsQuery();
-  const { data: modelsData } = useListModelsQuery();
   const [createAgent] = useCreateAgentMutation();
   const [deleteAgent] = useDeleteAgentMutation();
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -32,32 +22,11 @@ export default function DashboardPage() {
 
   const agents = agentsData?.agents || [];
 
-  // Form state
-  const [formData, setFormData] = useState(defaultFormData);
-
-  const handleCreateAgent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.name.trim()) {
-      alert("Please fill in the agent name");
-      return;
-    }
-
+  const handleCreateAgent = async (data: CreateAgentInput) => {
     setIsCreating(true);
     try {
-      await createAgent({
-        name: formData.name.trim(),
-        description: formData.description.trim() || undefined,
-        instructions: formData.instructions.trim(),
-        openaiApiUrl: formData.openaiApiUrl.trim() || undefined,
-        openaiApiKey: formData.openaiApiKey.trim() || undefined,
-        openaiModel: formData.openaiModel.trim() || undefined,
-      }).unwrap();
-
+      await createAgent(data).unwrap();
       setShowCreateForm(false);
-      setFormData({
-        ...defaultFormData,
-      });
     } catch (error) {
       console.error("Error creating agent:", error);
       alert("Failed to create agent. Please try again.");
@@ -203,152 +172,12 @@ export default function DashboardPage() {
       </div>
 
       {/* Create Agent Modal */}
-      {showCreateForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-background-secondary border border-divider rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-foreground">
-                Create New Agent
-              </h2>
-              <button
-                onClick={() => setShowCreateForm(false)}
-                className="text-foreground-secondary hover:text-foreground transition-colors"
-                aria-label="Close"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateAgent} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">
-                  Name <span className="text-accent-error">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
-                  placeholder="My AI Agent"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent resize-none"
-                  placeholder="A brief description of your agent"
-                  rows={2}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">
-                  Agent Instructions <span className="text-accent-error">*</span>
-                </label>
-                <textarea
-                  value={formData.instructions}
-                  onChange={(e) =>
-                    setFormData({ ...formData, instructions: e.target.value })
-                  }
-                  className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent resize-none"
-                  placeholder="System instructions for the agent"
-                  rows={4}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">
-                  OpenAI API URL
-                </label>
-                <input
-                  type="text"
-                  value={formData.openaiApiUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, openaiApiUrl: e.target.value })
-                  }
-                  className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
-                  placeholder="https://api.openai.com/v1"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">
-                  OpenAI API Key
-                </label>
-                <input
-                  type="password"
-                  value={formData.openaiApiKey}
-                  onChange={(e) =>
-                    setFormData({ ...formData, openaiApiKey: e.target.value })
-                  }
-                  className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
-                  placeholder="sk-..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">
-                  AI Model
-                </label>
-                <select
-                  value={formData.openaiModel}
-                  onChange={(e) =>
-                    setFormData({ ...formData, openaiModel: e.target.value })
-                  }
-                  className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
-                >
-                  <option value="">Select a model</option>
-                  {modelsData?.models?.map((model) => (
-                    <option key={model.uuid} value={model.uuid}>
-                      {model.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateForm(false)}
-                  className="flex-1 bg-background-deep text-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isCreating}
-                  className="flex-1 bg-accent-primary text-foreground-bright px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity font-medium"
-                >
-                  {isCreating ? "Creating..." : "Create Agent"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <NewAgentForm
+        isOpen={showCreateForm}
+        onClose={() => setShowCreateForm(false)}
+        onSubmit={handleCreateAgent}
+        isSubmitting={isCreating}
+      />
     </div>
   );
 }
