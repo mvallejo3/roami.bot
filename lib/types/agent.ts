@@ -22,7 +22,6 @@ export interface CreateAgentInput {
   openaiApiUrl: string;
   openaiApiKey: string;
   openaiModel: string;
-  knowledgeBaseUuid?: string;
 }
 
 export interface UpdateAgentInput {

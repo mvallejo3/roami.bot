@@ -1,19 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { Agent } from "@/lib/types/agent";
-import { getAgents, createAgent, deleteAgent } from "@/lib/services/agentService";
 import { useStandalone } from "@/lib/hooks/useStandalone";
+import {
+  useListAgentsQuery,
+  useCreateAgentMutation,
+  useDeleteAgentMutation,
+} from "@/store/features/agents/agentApi";
 
 export default function DashboardPage() {
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: agentsData, isLoading } = useListAgentsQuery();
+  const [createAgent] = useCreateAgentMutation();
+  const [deleteAgent] = useDeleteAgentMutation();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
   const isStandalone = useStandalone();
+
+  const agents = agentsData?.agents || [];
 
   // Form state
   const [formData, setFormData] = useState({
@@ -23,23 +29,7 @@ export default function DashboardPage() {
     openaiApiUrl: "https://bzpljqculh65vdorw47xiqgg.agents.do-ai.run/api/v1",
     openaiApiKey: "0CjOl_WmssRXDLNVkqjRHnrg0X4jsk5g",
     openaiModel: "llama3.3-70b-instruct",
-    knowledgeBaseUuid: "",
   });
-
-  useEffect(() => {
-    loadAgents();
-  }, []);
-
-  const loadAgents = () => {
-    try {
-      const loadedAgents = getAgents();
-      setAgents(loadedAgents);
-    } catch (error) {
-      console.error("Error loading agents:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleCreateAgent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,17 +42,15 @@ export default function DashboardPage() {
 
     setIsCreating(true);
     try {
-      const newAgent = createAgent({
+      await createAgent({
         name: formData.name.trim(),
         description: formData.description.trim() || undefined,
         instructions: formData.instructions.trim() || undefined,
         openaiApiUrl: formData.openaiApiUrl.trim(),
         openaiApiKey: formData.openaiApiKey.trim(),
         openaiModel: formData.openaiModel.trim(),
-        knowledgeBaseUuid: formData.knowledgeBaseUuid.trim() || undefined,
-      });
+      }).unwrap();
 
-      setAgents([...agents, newAgent]);
       setShowCreateForm(false);
       setFormData({
         name: "",
@@ -71,7 +59,6 @@ export default function DashboardPage() {
         openaiApiUrl: "https://bzpljqculh65vdorw47xiqgg.agents.do-ai.run/api/v1",
         openaiApiKey: "0CjOl_WmssRXDLNVkqjRHnrg0X4jsk5g",
         openaiModel: "llama3.3-70b-instruct",
-        knowledgeBaseUuid: "",
       });
     } catch (error) {
       console.error("Error creating agent:", error);
@@ -81,14 +68,13 @@ export default function DashboardPage() {
     }
   };
 
-  const handleDeleteAgent = (id: string, name: string) => {
+  const handleDeleteAgent = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete "${name}"?`)) {
       return;
     }
 
     try {
-      deleteAgent(id);
-      setAgents(agents.filter((agent) => agent.id !== id));
+      await deleteAgent(id).unwrap();
     } catch (error) {
       console.error("Error deleting agent:", error);
       alert("Failed to delete agent. Please try again.");
@@ -339,24 +325,6 @@ export default function DashboardPage() {
                   className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
                   placeholder="gpt-4"
                   required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">
-                  Knowledge Base UUID
-                </label>
-                <input
-                  type="text"
-                  value={formData.knowledgeBaseUuid}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      knowledgeBaseUuid: e.target.value,
-                    })
-                  }
-                  className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
-                  placeholder="Optional: Knowledge base UUID"
                 />
               </div>
 

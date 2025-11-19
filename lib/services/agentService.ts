@@ -1,104 +1,59 @@
 /**
  * Client-side agent service for managing agents
- * Uses localStorage for now, can be migrated to Firestore later
+ * 
+ * NOTE: This service has been migrated to use the API via RTK Query.
+ * Please use the hooks from @/store/features/agents/agentApi instead:
+ * - useListAgentsQuery() for listing agents
+ * - useGetAgentQuery(id) for getting a single agent
+ * - useCreateAgentMutation() for creating agents
+ * - useUpdateAgentMutation() for updating agents
+ * - useDeleteAgentMutation() for deleting agents
  */
 
 import type { Agent, CreateAgentInput, UpdateAgentInput } from "@/lib/types/agent";
 
-const AGENTS_STORAGE_KEY = "roami_agents";
-
 /**
- * Get all agents from localStorage
+ * @deprecated Use useListAgentsQuery() from @/store/features/agents/agentApi instead
  */
 export function getAgents(): Agent[] {
-  if (typeof window === "undefined") return [];
-  
-  try {
-    const stored = localStorage.getItem(AGENTS_STORAGE_KEY);
-    if (!stored) return [];
-    return JSON.parse(stored) as Agent[];
-  } catch (error) {
-    console.error("Error reading agents from localStorage:", error);
-    return [];
-  }
+  throw new Error(
+    "getAgents() has been removed. Please use useListAgentsQuery() from @/store/features/agents/agentApi instead."
+  );
 }
 
 /**
- * Get a single agent by ID
+ * @deprecated Use useGetAgentQuery(id) from @/store/features/agents/agentApi instead
  */
 export function getAgent(id: string): Agent | null {
-  const agents = getAgents();
-  return agents.find((agent) => agent.id === id) || null;
+  throw new Error(
+    "getAgent() has been removed. Please use useGetAgentQuery(id) from @/store/features/agents/agentApi instead."
+  );
 }
 
 /**
- * Create a new agent
+ * @deprecated Use useCreateAgentMutation() from @/store/features/agents/agentApi instead
  */
 export function createAgent(input: CreateAgentInput): Agent {
-  const agents = getAgents();
-  const now = Date.now();
-  
-  const newAgent: Agent = {
-    id: `agent_${now}_${Math.random().toString(36).substr(2, 9)}`,
-    ...input,
-    createdAt: now,
-    updatedAt: now,
-  };
-  
-  agents.push(newAgent);
-  saveAgents(agents);
-  
-  return newAgent;
+  throw new Error(
+    "createAgent() has been removed. Please use useCreateAgentMutation() from @/store/features/agents/agentApi instead."
+  );
 }
 
 /**
- * Update an existing agent
+ * @deprecated Use useUpdateAgentMutation() from @/store/features/agents/agentApi instead
  */
 export function updateAgent(id: string, input: UpdateAgentInput): Agent {
-  const agents = getAgents();
-  const index = agents.findIndex((agent) => agent.id === id);
-  
-  if (index === -1) {
-    throw new Error(`Agent with id ${id} not found`);
-  }
-  
-  const updatedAgent: Agent = {
-    ...agents[index],
-    ...input,
-    updatedAt: Date.now(),
-  };
-  
-  agents[index] = updatedAgent;
-  saveAgents(agents);
-  
-  return updatedAgent;
+  throw new Error(
+    "updateAgent() has been removed. Please use useUpdateAgentMutation() from @/store/features/agents/agentApi instead."
+  );
 }
 
 /**
- * Delete an agent
+ * @deprecated Use useDeleteAgentMutation() from @/store/features/agents/agentApi instead
  */
 export function deleteAgent(id: string): void {
-  const agents = getAgents();
-  const filtered = agents.filter((agent) => agent.id !== id);
-  
-  if (filtered.length === agents.length) {
-    throw new Error(`Agent with id ${id} not found`);
-  }
-  
-  saveAgents(filtered);
-}
-
-/**
- * Save agents to localStorage
- */
-function saveAgents(agents: Agent[]): void {
-  if (typeof window === "undefined") return;
-  
-  try {
-    localStorage.setItem(AGENTS_STORAGE_KEY, JSON.stringify(agents));
-  } catch (error) {
-    console.error("Error saving agents to localStorage:", error);
-    throw new Error("Failed to save agents");
-  }
+  throw new Error(
+    "deleteAgent() has been removed. Please use useDeleteAgentMutation() from @/store/features/agents/agentApi instead."
+  );
 }
 
