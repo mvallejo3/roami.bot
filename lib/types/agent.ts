@@ -20,9 +20,9 @@ export interface CreateAgentInput {
   name: string;
   description?: string;
   instructions?: string;
-  openaiApiUrl: string;
-  openaiApiKey: string;
-  openaiModel: string;
+  openaiApiUrl?: string;
+  openaiApiKey?: string;
+  openaiModel?: string;
 }
 
 export interface UpdateAgentInput {

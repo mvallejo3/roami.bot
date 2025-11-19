@@ -10,6 +10,15 @@ import {
   useDeleteAgentMutation,
 } from "@/store/features/agents/agentApi";
 
+const defaultFormData = {
+  name: "",
+  description: "",
+  instructions: "",
+  openaiApiUrl: "",
+  openaiApiKey: "",
+  openaiModel: "",
+}
+
 export default function DashboardPage() {
   const { data: agentsData, isLoading } = useListAgentsQuery();
   const [createAgent] = useCreateAgentMutation();
@@ -22,21 +31,13 @@ export default function DashboardPage() {
   const agents = agentsData?.agents || [];
 
   // Form state
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    instructions: "",
-    openaiApiUrl: "https://bzpljqculh65vdorw47xiqgg.agents.do-ai.run/api/v1",
-    openaiApiKey: "0CjOl_WmssRXDLNVkqjRHnrg0X4jsk5g",
-    openaiModel: "llama3.3-70b-instruct",
-  });
+  const [formData, setFormData] = useState(defaultFormData);
 
   const handleCreateAgent = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.openaiApiUrl.trim() || 
-        !formData.openaiApiKey.trim() || !formData.openaiModel.trim()) {
-      alert("Please fill in all required fields (Name, API URL, API Key, Model)");
+    if (!formData.name.trim()) {
+      alert("Please fill in the agent name");
       return;
     }
 
@@ -45,20 +46,15 @@ export default function DashboardPage() {
       await createAgent({
         name: formData.name.trim(),
         description: formData.description.trim() || undefined,
-        instructions: formData.instructions.trim() || undefined,
-        openaiApiUrl: formData.openaiApiUrl.trim(),
-        openaiApiKey: formData.openaiApiKey.trim(),
-        openaiModel: formData.openaiModel.trim(),
+        instructions: formData.instructions.trim(),
+        openaiApiUrl: formData.openaiApiUrl.trim() || undefined,
+        openaiApiKey: formData.openaiApiKey.trim() || undefined,
+        openaiModel: formData.openaiModel.trim() || undefined,
       }).unwrap();
 
       setShowCreateForm(false);
       setFormData({
-        name: "",
-        description: "",
-        instructions: "",
-        openaiApiUrl: "https://bzpljqculh65vdorw47xiqgg.agents.do-ai.run/api/v1",
-        openaiApiKey: "0CjOl_WmssRXDLNVkqjRHnrg0X4jsk5g",
-        openaiModel: "llama3.3-70b-instruct",
+        ...defaultFormData,
       });
     } catch (error) {
       console.error("Error creating agent:", error);
@@ -267,7 +263,7 @@ export default function DashboardPage() {
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1">
-                  Agent Instructions
+                  Agent Instructions <span className="text-accent-error">*</span>
                 </label>
                 <textarea
                   value={formData.instructions}
@@ -277,12 +273,13 @@ export default function DashboardPage() {
                   className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent resize-none"
                   placeholder="System instructions for the agent"
                   rows={4}
+                  required
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1">
-                  OpenAI API URL <span className="text-accent-error">*</span>
+                  OpenAI API URL
                 </label>
                 <input
                   type="text"
@@ -292,13 +289,12 @@ export default function DashboardPage() {
                   }
                   className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
                   placeholder="https://api.openai.com/v1"
-                  required
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1">
-                  OpenAI API Key <span className="text-accent-error">*</span>
+                  OpenAI API Key
                 </label>
                 <input
                   type="password"
@@ -308,13 +304,12 @@ export default function DashboardPage() {
                   }
                   className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
                   placeholder="sk-..."
-                  required
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1">
-                  OpenAI Model <span className="text-accent-error">*</span>
+                  OpenAI Model
                 </label>
                 <input
                   type="text"
@@ -324,7 +319,6 @@ export default function DashboardPage() {
                   }
                   className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
                   placeholder="gpt-4"
-                  required
                 />
               </div>
 
