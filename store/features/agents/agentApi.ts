@@ -82,7 +82,7 @@ export const agentApi = createApi({
     }),
 
     // Delete an agent
-    deleteAgent: builder.mutation<void, string>({
+    deleteAgent: builder.mutation<{message: string, agentId: string}, string>({
       query: (id) => ({
         url: `/api/agents/${id}`,
         method: "DELETE",

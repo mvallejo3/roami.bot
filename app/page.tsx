@@ -151,9 +151,9 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {agents.map((agent) => (
                 <div
-                  key={agent.id}
+                  key={agent._id}
                   className="bg-background-secondary border border-divider rounded-lg p-4 hover:border-accent-primary transition-colors cursor-pointer"
-                  onClick={() => handleAgentClick(agent.id)}
+                  onClick={() => handleAgentClick(agent._id)}
                 >
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="text-lg font-semibold text-foreground flex-1">
@@ -162,7 +162,7 @@ export default function DashboardPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDeleteAgent(agent.id, agent.name);
+                        handleDeleteAgent(agent._id, agent.name);
                       }}
                       className="text-accent-error hover:opacity-80 transition-opacity ml-2"
                       aria-label={`Delete ${agent.name}`}

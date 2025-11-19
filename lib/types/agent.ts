@@ -3,7 +3,8 @@
  */
 
 export interface Agent {
-  id: string;
+  _id: string;
+  _type: "__agent__";
   name: string;
   description?: string;
   instructions?: string;
@@ -11,8 +12,8 @@ export interface Agent {
   openaiApiKey: string;
   openaiModel: string;
   knowledgeBaseUuid?: string;
-  createdAt: number;
-  updatedAt: number;
+  created_at: number;
+  updated_at: number;
 }
 
 export interface CreateAgentInput {

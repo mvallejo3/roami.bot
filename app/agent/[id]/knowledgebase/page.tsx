@@ -5,17 +5,16 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getFiles, deleteFile, uploadFiles, reindexKnowledgeBase, type FileInfo } from "@/app/actions";
 import { useStandalone } from "@/lib/hooks/useStandalone";
-import { getAgent } from "@/lib/services/agentService";
-import type { Agent } from "@/lib/types/agent";
+import { useGetAgentQuery } from "@/store/features/agents/agentApi";
 
 export default function KnowledgebasePage() {
   const params = useParams();
   const router = useRouter();
   const agentId = params.id as string;
-  const [agent, setAgent] = useState<Agent | null>(null);
+  const { data: agentData, isLoading: isLoadingAgent, error: agentError } = useGetAgentQuery(agentId);
+  const agent = agentData?.agent || null;
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingAgent, setIsLoadingAgent] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -28,8 +27,10 @@ export default function KnowledgebasePage() {
   const [knowledgeBaseUuid, setKnowledgeBaseUuid] = useState("");
 
   useEffect(() => {
-    loadAgent();
-  }, [agentId]);
+    if (agentError) {
+      router.push("/");
+    }
+  }, [agentError, router]);
 
   useEffect(() => {
     if (agent?.knowledgeBaseUuid) {
@@ -42,25 +43,6 @@ export default function KnowledgebasePage() {
       fetchFiles();
     }
   }, [knowledgeBaseUuid]);
-
-  const loadAgent = () => {
-    try {
-      const loadedAgent = getAgent(agentId);
-      if (!loadedAgent) {
-        router.push("/");
-        return;
-      }
-      setAgent(loadedAgent);
-      if (loadedAgent.knowledgeBaseUuid) {
-        setKnowledgeBaseUuid(loadedAgent.knowledgeBaseUuid);
-      }
-    } catch (error) {
-      console.error("Error loading agent:", error);
-      router.push("/");
-    } finally {
-      setIsLoadingAgent(false);
-    }
-  };
 
   const fetchFiles = async () => {
     if (!knowledgeBaseUuid) return;

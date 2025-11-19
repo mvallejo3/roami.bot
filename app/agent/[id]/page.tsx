@@ -7,25 +7,26 @@ import type { Message } from "@/store/features/chat/chatApi";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { useStandalone } from "@/lib/hooks/useStandalone";
 import { ChatService } from "@/lib/services/chatService";
-import { getAgent } from "@/lib/services/agentService";
-import type { Agent } from "@/lib/types/agent";
+import { useGetAgentQuery } from "@/store/features/agents/agentApi";
 
 export default function AgentChatPage() {
   const params = useParams();
   const router = useRouter();
   const agentId = params.id as string;
-  const [agent, setAgent] = useState<Agent | null>(null);
+  const { data: agentData, isLoading: isLoadingAgent, error } = useGetAgentQuery(agentId);
+  const agent = agentData?.agent || null;
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingAgent, setIsLoadingAgent] = useState(true);
   const [chatService, setChatService] = useState<ChatService | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isStandalone = useStandalone();
 
   useEffect(() => {
-    loadAgent();
-  }, [agentId]);
+    if (error) {
+      router.push("/");
+    }
+  }, [error, router]);
 
   useEffect(() => {
     if (agent) {
@@ -55,22 +56,6 @@ export default function AgentChatPage() {
       }
     };
   }, [agent]);
-
-  const loadAgent = () => {
-    try {
-      const loadedAgent = getAgent(agentId);
-      if (!loadedAgent) {
-        router.push("/");
-        return;
-      }
-      setAgent(loadedAgent);
-    } catch (error) {
-      console.error("Error loading agent:", error);
-      router.push("/");
-    } finally {
-      setIsLoadingAgent(false);
-    }
-  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

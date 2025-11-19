@@ -54,7 +54,10 @@ export async function DELETE(
 ) {
   try {
     await deleteAgent(params.id);
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      message: "Agent deleted successfully",
+      agentId: params.id 
+    });
   } catch (error) {
     console.error("Error deleting agent:", error);
     return NextResponse.json(

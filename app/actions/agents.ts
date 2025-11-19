@@ -9,6 +9,7 @@ import { getServerToken } from "@/lib/firebase/server";
  */
 export interface AgentsListResponse {
   agents: Agent[];
+  count: number;
 }
 
 export interface AgentResponse {
@@ -222,7 +223,7 @@ export async function deleteAgent(id: string): Promise<void> {
 
   try {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/api/agents/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/api/agents?agentId=${id}`, {
       method: "DELETE",
       headers,
     });
