@@ -61,3 +61,14 @@ export async function listModels(): Promise<ModelsListResponse> {
   }
 }
 
+/**
+ * Get the list of model UUIDs that don't require an API key
+ */
+export async function getNoApiKeyRequiredModels(): Promise<string[]> {
+  const envValue = process.env.NO_API_KEY_REQUIRED_MODEL_UUIDS;
+  if (!envValue) {
+    return [];
+  }
+  return envValue.split(",").map((uuid) => uuid.trim()).filter(Boolean);
+}
+

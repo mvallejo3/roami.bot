@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { CreateAgentInput } from "@/lib/types/agent";
-import { NO_API_KEY_REQUIRED_MODELS } from "@/lib/utils/api-config";
-
-const noAPIKeyRequiredModelUUIDs = NO_API_KEY_REQUIRED_MODELS;
+import { getNoApiKeyRequiredModels } from "@/app/actions/models";
 
 export interface RoamiBotFormProps {
   onSubmit: (data: CreateAgentInput) => Promise<void>;
@@ -34,6 +32,23 @@ export default function RoamiBotForm({
     openaiModel: "",
     openaiApiKey: "",
   });
+  const [noAPIKeyRequiredModelUUIDs, setNoAPIKeyRequiredModelUUIDs] =
+    useState<string[]>([]);
+
+  // Fetch the list of models that don't require API keys from the server
+  useEffect(() => {
+    async function fetchNoApiKeyRequiredModels() {
+      try {
+        const models = await getNoApiKeyRequiredModels();
+        setNoAPIKeyRequiredModelUUIDs(models);
+      } catch (error) {
+        console.error("Error fetching no API key required models:", error);
+        // Set empty array as fallback
+        setNoAPIKeyRequiredModelUUIDs([]);
+      }
+    }
+    fetchNoApiKeyRequiredModels();
+  }, []);
 
   // Set default AI Model to first option when models are loaded
   useEffect(() => {
