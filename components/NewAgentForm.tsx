@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import Tabs from "./Tabs";
 import { useListModelsQuery } from "@/store/features/models/modelApi";
 import type { CreateAgentInput } from "@/lib/types/agent";
+import { NO_API_KEY_REQUIRED_MODELS } from "@/lib/utils/api-config";
+
+const noAPIKeyRequiredModelUUIDs = NO_API_KEY_REQUIRED_MODELS;
 
 interface NewAgentFormProps {
   isOpen: boolean;

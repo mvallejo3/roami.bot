@@ -1,6 +1,6 @@
 "use server";
 
-import { API_BASE_URL } from "@/lib/utils/api-config";
+import { API_BASE_URL, API_TOKEN } from "@/lib/utils/api-config";
 import type { Agent, CreateAgentInput, UpdateAgentInput } from "@/lib/types/agent";
 import { getServerToken } from "@/lib/firebase/server";
 
@@ -35,7 +35,7 @@ async function getAuthHeaders(): Promise<HeadersInit> {
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   } else {
-    headers["Authorization"] = `Bearer ia7nFajOnI90BXpVZwo_bOjL4h6MdYNz`;
+    headers["Authorization"] = `Bearer ${API_TOKEN}`;
   }
 
   return headers;

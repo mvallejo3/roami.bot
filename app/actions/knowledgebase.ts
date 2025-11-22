@@ -1,6 +1,6 @@
 "use server";
 
-import { API_BASE_URL } from "@/lib/utils/api-config";
+import { API_BASE_URL, API_TOKEN } from "@/lib/utils/api-config";
 
 export interface ChatResponse {
   answer: string;
@@ -18,37 +18,13 @@ export interface FilesResponse {
   files: FileInfo[];
 }
 
-export async function sendPrompt(prompt: string): Promise<ChatResponse> {
-  if (!prompt || typeof prompt !== "string") {
-    throw new Error("Prompt is required");
-  }
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/prompt`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": `Bearer ia7nFajOnI90BXpVZwo_bOjL4h6MdYNz`,
-      },
-      body: JSON.stringify({ prompt }),
-    });
-
-    const data = await response.json();
-    return { ...data };
-  } catch (error) {
-    console.error("Error processing prompt:", error);
-    throw new Error("Internal server error");
-  }
-}
-
 export async function getFiles(): Promise<FilesResponse> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/files`, {
       method: "GET",
       headers: {
         "Accept": "application/json",
-        "Authorization": `Bearer ia7nFajOnI90BXpVZwo_bOjL4h6MdYNz`,
+        "Authorization": `Bearer ${API_TOKEN}`,
       },
     });
 
@@ -80,7 +56,7 @@ export async function deleteFile(key: string): Promise<DeleteFileResponse> {
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": `Bearer ia7nFajOnI90BXpVZwo_bOjL4h6MdYNz`,
+        "Authorization": `Bearer ${API_TOKEN}`,
       },
     });
 
@@ -118,7 +94,7 @@ export async function uploadFiles(formData: FormData): Promise<UploadFilesRespon
       method: "POST",
       headers: {
         "Accept": "application/json",
-        "Authorization": `Bearer ia7nFajOnI90BXpVZwo_bOjL4h6MdYNz`,
+        "Authorization": `Bearer ${API_TOKEN}`,
       },
       body: formData,
     });
@@ -182,7 +158,7 @@ export async function reindexKnowledgeBase(
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": `Bearer ia7nFajOnI90BXpVZwo_bOjL4h6MdYNz`,
+        "Authorization": `Bearer ${API_TOKEN}`,
       },
       body: JSON.stringify(requestBody),
     });

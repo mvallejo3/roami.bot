@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { getFiles, deleteFile, uploadFiles, reindexKnowledgeBase, type FileInfo } from "@/app/actions";
+import { getFiles, deleteFile, uploadFiles, reindexKnowledgeBase, type FileInfo } from "@/app/actions/knowledgebase";
 import { useStandalone } from "@/lib/hooks/useStandalone";
 import { useGetAgentQuery } from "@/store/features/agents/agentApi";
 

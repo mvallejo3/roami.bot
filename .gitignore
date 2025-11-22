@@ -19,6 +19,7 @@
 .DS_Store
 *.pem
 ai-docs
+certificates
 
 # debug
 npm-debug.log*
