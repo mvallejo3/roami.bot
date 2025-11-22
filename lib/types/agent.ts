@@ -18,6 +18,7 @@ export interface Agent {
 
 export interface CreateAgentInput {
   name: string;
+  agentType: "default" | "custom";
   description?: string;
   instructions?: string;
   openaiApiUrl?: string;
