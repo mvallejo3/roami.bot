@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import type { Message } from "@/store/features/chat/chatApi";
+import type { Message } from "@/lib/services/chatService";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { useStandalone } from "@/lib/hooks/useStandalone";
 import { ChatService } from "@/lib/services/chatService";
