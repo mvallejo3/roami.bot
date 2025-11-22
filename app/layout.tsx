@@ -21,7 +21,6 @@ export const metadata: Metadata = {
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
-  themeColor: "#3B82F6",
 };
 
 export const viewport: Viewport = {
