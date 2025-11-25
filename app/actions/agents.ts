@@ -1,15 +1,31 @@
 "use server";
 
 import { API_BASE_URL, API_TOKEN } from "@/lib/utils/api-config";
-import type { Agent, CreateAgentInput, UpdateAgentInput } from "@/lib/types/agent";
+import type {
+  Agent,
+  ApiAgent,
+  CreateAgentInput,
+  UpdateAgentInput,
+} from "@/lib/types/agent";
 import { getServerToken } from "@/lib/firebase/server";
 
 /**
  * Response types matching the API structure
  */
 export interface AgentsListResponse {
-  agents: Agent[];
-  count: number;
+  agents: ApiAgent[];
+  links: {
+    pages: {
+      first: string;
+      last: string;
+    };
+  };
+  meta: {
+    page: number;
+    pages: number;
+    total: number;
+  };
+  status: string;
 }
 
 export interface AgentResponse {

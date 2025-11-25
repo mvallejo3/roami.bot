@@ -1,38 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { Agent, CreateAgentInput, UpdateAgentInput } from "@/lib/types/agent";
-
-/**
- * AgentListResponse represents the response returned from the agent list API.
- *
- * Example structure:
- * {
- *   agents: {
- *     agents: Agent[],
- *     links: { pages: { first: string; last: string } },
- *     meta: { page: number; pages: number; total: number }
- *   },
- *   count: number,
- *   status: string
- * }
- */
-export interface AgentsListResponse {
-  agents: {
-    agents: Agent[];
-    links: {
-      pages: {
-        first: string;
-        last: string;
-      };
-    };
-    meta: {
-      page: number;
-      pages: number;
-      total: number;
-    };
-  };
-  count: number;
-  status: string;
-}
+import type {
+  Agent,
+  CreateAgentInput,
+  UpdateAgentInput,
+} from "@/lib/types/agent";
+import type { AgentsListResponse } from "@/app/actions/agents";
 
 export interface AgentResponse {
   agent: Agent;
