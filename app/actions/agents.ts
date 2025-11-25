@@ -29,7 +29,8 @@ export interface AgentsListResponse {
 }
 
 export interface AgentResponse {
-  agent: Agent;
+  agent: ApiAgent;
+  status: string;
 }
 
 export interface UpdateKnowledgeBaseInput {

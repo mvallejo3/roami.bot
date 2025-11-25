@@ -1,14 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type {
-  Agent,
   CreateAgentInput,
   UpdateAgentInput,
 } from "@/lib/types/agent";
-import type { AgentsListResponse } from "@/app/actions/agents";
-
-export interface AgentResponse {
-  agent: Agent;
-}
+import type { AgentsListResponse, AgentResponse } from "@/app/actions/agents";
 
 export interface UpdateKnowledgeBaseInput {
   knowledgeBaseUuid: string;

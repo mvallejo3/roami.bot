@@ -20,6 +20,9 @@ export interface Agent {
  * API Agent type - matches the structure returned from the DigitalOcean GenAI API
  */
 export interface ApiAgent {
+  api_keys?: Array<{
+    api_key: string;
+  }>;
   chatbot_identifiers: Array<{
     agent_chatbot_identifier: string;
   }>;
@@ -94,6 +97,16 @@ export interface ApiAgent {
   updated_at: string; // ISO8601 date string
   user_id: string;
   uuid: string;
+  version_hash?: string;
+  workspace?: {
+    created_at: string; // ISO8601 date string
+    created_by: string;
+    created_by_email: string;
+    description: string;
+    name: string;
+    updated_at: string; // ISO8601 date string
+    uuid: string;
+  };
 }
 
 export interface CreateAgentInput {
