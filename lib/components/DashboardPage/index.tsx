@@ -6,6 +6,7 @@ import { useCreateAgentMutation } from "@/store/features/agents/agentApi";
 import NewAgentForm from "@/components/NewAgentForm";
 import PageHeader from "@/lib/components/PageHeader";
 import AgentCard from "@/lib/components/AgentCard";
+import NoAgents from "@/lib/components/NoAgents";
 import type { CreateAgentInput, ApiAgent } from "@/lib/types/agent";
 
 interface DashboardPageProps {
@@ -54,22 +55,7 @@ export default function DashboardPage({ agents }: DashboardPageProps) {
       <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
         <div className="max-w-6xl mx-auto">
           {agents.length === 0 ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <h2 className="text-2xl font-semibold mb-2 text-accent-primary">
-                  No agents yet
-                </h2>
-                <p className="text-foreground-secondary mb-4">
-                  Create your first AI agent to get started
-                </p>
-                <button
-                  onClick={() => setShowCreateForm(true)}
-                  className="bg-accent-primary text-foreground-bright px-6 py-3 rounded-lg hover:opacity-90 transition-opacity font-medium"
-                >
-                  Create Agent
-                </button>
-              </div>
-            </div>
+            <NoAgents onCreateClick={() => setShowCreateForm(true)} />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {agents.map((agent) => (
