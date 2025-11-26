@@ -82,7 +82,6 @@ export default function NewAgentForm({ onClose }: NewAgentFormProps) {
               content: (
                 <RoamiBotForm
                   onSubmit={handleCreateAgent}
-                  onClose={handleClose}
                   isSubmitting={isCreating}
                   modelsData={modelsData}
                 />
@@ -94,7 +93,6 @@ export default function NewAgentForm({ onClose }: NewAgentFormProps) {
               content: (
                 <CustomForm
                   onSubmit={handleCreateAgent}
-                  onClose={handleClose}
                   isSubmitting={isCreating}
                 />
               ),

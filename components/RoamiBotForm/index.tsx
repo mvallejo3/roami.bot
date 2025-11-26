@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import type { CreateAgentInput } from "@/lib/types/agent";
 import { getNoApiKeyRequiredModels } from "@/app/actions/models";
+import { closeForm } from "@/store/features/agentForm/agentFormSlice";
 
 export interface RoamiBotFormProps {
   onSubmit: (data: CreateAgentInput) => Promise<void>;
-  onClose: () => void;
   isSubmitting: boolean;
   modelsData: { models: Array<{ uuid: string; name: string }> } | undefined;
 }
@@ -21,10 +22,10 @@ interface RoamiBotFormData {
 
 export default function RoamiBotForm({
   onSubmit,
-  onClose,
   isSubmitting,
   modelsData,
 }: RoamiBotFormProps) {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState<RoamiBotFormData>({
     name: "",
     description: "",
@@ -116,7 +117,7 @@ export default function RoamiBotForm({
       openaiModel: defaultModel,
       openaiApiKey: "",
     });
-    onClose();
+    dispatch(closeForm());
   };
 
   const selectedModel = formData.openaiModel;

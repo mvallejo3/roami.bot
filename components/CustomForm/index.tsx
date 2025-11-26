@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import type { CreateAgentInput } from "@/lib/types/agent";
+import { closeForm } from "@/store/features/agentForm/agentFormSlice";
 
 export interface CustomFormProps {
   onSubmit: (data: CreateAgentInput) => Promise<void>;
-  onClose: () => void;
   isSubmitting: boolean;
 }
 
@@ -18,9 +19,9 @@ interface CustomFormData {
 
 export default function CustomForm({
   onSubmit,
-  onClose,
   isSubmitting,
 }: CustomFormProps) {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState<CustomFormData>({
     name: "",
     description: "",
@@ -70,7 +71,7 @@ export default function CustomForm({
       openaiApiUrl: "",
       openaiApiKey: "",
     });
-    onClose();
+    dispatch(closeForm());
   };
 
   return (
