@@ -16,8 +16,7 @@ export default function NewAgentForm() {
   const isOpen = useSelector(selectAgentFormIsOpen);
   const [createAgent] = useCreateAgentMutation();
   const [isCreating, setIsCreating] = useState(false);
-  const { data: modelsData } = useListModelsQuery();
-  const [agentType, setAgentType] = useState<"roami-bot" | "custom-agent">("roami-bot");
+  const { data: modelsData } = useListModelsQuery(undefined, { skip: !isOpen });
   
   const handleCreateAgent = async (data: CreateAgentInput) => {
     setIsCreating(true);
@@ -77,9 +76,6 @@ export default function NewAgentForm() {
             }
           ]}
           defaultTab="roami-bot"
-          onTabChange={(tabId) =>
-            setAgentType(tabId as "roami-bot" | "custom-agent")
-          }
         />
       </div>
     </div>
