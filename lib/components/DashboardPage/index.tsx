@@ -1,15 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useStandalone } from "@/lib/hooks/useStandalone";
-import {
-  useCreateAgentMutation,
-  useDeleteAgentMutation,
-} from "@/store/features/agents/agentApi";
-import { useListModelsQuery } from "@/store/features/models/modelApi";
+import { useCreateAgentMutation } from "@/store/features/agents/agentApi";
 import NewAgentForm from "@/components/NewAgentForm";
 import PageHeader from "@/lib/components/PageHeader";
+import AgentCard from "@/lib/components/AgentCard";
 import type { CreateAgentInput, ApiAgent } from "@/lib/types/agent";
 
 interface DashboardPageProps {
@@ -17,29 +13,10 @@ interface DashboardPageProps {
 }
 
 export default function DashboardPage({ agents }: DashboardPageProps) {
-  const { data: modelsData } = useListModelsQuery();
   const [createAgent] = useCreateAgentMutation();
-  const [deleteAgent] = useDeleteAgentMutation();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const router = useRouter();
   const isStandalone = useStandalone();
-
-  // Create a mapping from model UUID to model name
-  const modelNameMap = useMemo(() => {
-    const map = new Map<string, string>();
-    if (modelsData?.models) {
-      modelsData.models.forEach((model) => {
-        map.set(model.uuid, model.name);
-      });
-    }
-    return map;
-  }, [modelsData]);
-
-  // Helper function to get model name from UUID
-  const getModelName = (modelUuid: string) => {
-    return modelNameMap.get(modelUuid) || modelUuid;
-  };
 
   const handleCreateAgent = async (data: CreateAgentInput) => {
     setIsCreating(true);
@@ -52,23 +29,6 @@ export default function DashboardPage({ agents }: DashboardPageProps) {
     } finally {
       setIsCreating(false);
     }
-  };
-
-  const handleDeleteAgent = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete "${name}"?`)) {
-      return;
-    }
-
-    try {
-      await deleteAgent(id).unwrap();
-    } catch (error) {
-      console.error("Error deleting agent:", error);
-      alert("Failed to delete agent. Please try again.");
-    }
-  };
-
-  const handleAgentClick = (agentId: string) => {
-    router.push(`/agent/${agentId}`);
   };
 
   return (
@@ -113,54 +73,7 @@ export default function DashboardPage({ agents }: DashboardPageProps) {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {agents.map((agent) => (
-                <div
-                  key={agent.uuid}
-                  className="bg-background-secondary border border-divider rounded-lg p-4 hover:border-accent-primary transition-colors cursor-pointer"
-                  onClick={() => handleAgentClick(agent.uuid)}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-foreground flex-1">
-                      {agent.name}
-                    </h3>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteAgent(agent.uuid, agent.name);
-                      }}
-                      className="text-accent-error hover:opacity-80 transition-opacity ml-2"
-                      aria-label={`Delete ${agent.name}`}
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                  {agent.description && (
-                    <p className="text-sm text-foreground-secondary mb-3 line-clamp-2">
-                      {agent.description}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-2 text-xs text-foreground-secondary">
-                    <span className="bg-background-deep px-2 py-1 rounded">
-                      {getModelName(agent.model.uuid)}
-                    </span>
-                    {agent.retrieval_method && agent.retrieval_method !== "none" && (
-                      <span className="bg-background-deep px-2 py-1 rounded">
-                        KB
-                      </span>
-                    )}
-                  </div>
-                </div>
+                <AgentCard key={agent.uuid} agent={agent} />
               ))}
             </div>
           )}
