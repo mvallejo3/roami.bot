@@ -11,20 +11,15 @@ import type { CreateAgentInput } from "@/lib/types/agent";
 import RoamiBotForm from "@/components/RoamiBotForm";
 import CustomForm from "@/components/CustomForm";
 
-interface NewAgentFormProps {
-  onClose?: () => void;
-}
 
-export default function NewAgentForm({ onClose }: NewAgentFormProps) {
+export default function NewAgentForm() {
   const dispatch = useDispatch();
   const isOpen = useSelector(selectAgentFormIsOpen);
   const [createAgent] = useCreateAgentMutation();
   const [isCreating, setIsCreating] = useState(false);
   const { data: modelsData } = useListModelsQuery();
-  const [agentType, setAgentType] = useState<"roami-bot" | "custom-agent">(
-    "roami-bot"
-  );
-
+  const [agentType, setAgentType] = useState<"roami-bot" | "custom-agent">("roami-bot");
+  
   const handleCreateAgent = async (data: CreateAgentInput) => {
     setIsCreating(true);
     try {
@@ -38,12 +33,6 @@ export default function NewAgentForm({ onClose }: NewAgentFormProps) {
     }
   };
 
-  const handleClose = () => {
-    setAgentType("roami-bot");
-    dispatch(closeForm());
-    onClose?.();
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -54,7 +43,7 @@ export default function NewAgentForm({ onClose }: NewAgentFormProps) {
             Create New Agent
           </h2>
           <button
-            onClick={handleClose}
+            onClick={() => dispatch(closeForm())}
             className="text-foreground-secondary hover:text-foreground transition-colors"
             aria-label="Close"
           >
