@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Tabs from "./Tabs";
+import Tabs from "../Tabs";
 import { useListModelsQuery } from "@/store/features/models/modelApi";
 import { useCreateAgentMutation } from "@/store/features/agents/agentApi";
 import { closeForm } from "@/store/features/agentForm/agentFormSlice";
 import { selectAgentFormIsOpen } from "@/store/features/agentForm/agentFormSelectors";
 import type { CreateAgentInput } from "@/lib/types/agent";
-import RoamiBotForm from "@/components/RoamiBotForm";
+import RoamiBotForm from "@/lib/components/RoamiBotForm";
 
 
 export default function NewAgentForm() {
