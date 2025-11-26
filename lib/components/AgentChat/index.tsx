@@ -234,7 +234,23 @@ export default function AgentChat({ agent, apiKey, agentId }: AgentChatProps) {
 
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 pb-20">
-        {!apiKey ? (
+        {agent.deployment?.status === "STATUS_DEPLOYING" ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <div className="mb-4 flex justify-center">
+                <div className="relative">
+                  <div className="w-16 h-16 border-4 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              </div>
+              <h2 className="text-2xl font-semibold mb-2 text-accent-primary">
+                Building your agent
+              </h2>
+              <p className="text-foreground-secondary">
+                Your agent is being deployed. This may take a few moments.
+              </p>
+            </div>
+          </div>
+        ) : !apiKey ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <h2 className="text-2xl font-semibold mb-4 text-accent-primary">
@@ -330,12 +346,12 @@ export default function AgentChat({ agent, apiKey, agentId }: AgentChatProps) {
               }}
               placeholder="Type your message... (Shift+Enter for new line)"
               className="flex-1 bg-background-secondary border border-divider rounded-lg px-4 py-2 sm:py-3 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent text-sm sm:text-base disabled:text-foreground-disabled resize-none min-h-[44px] max-h-[200px] overflow-y-auto"
-              disabled={isLoading || !chatService || !apiKey}
+              disabled={isLoading || !chatService || !apiKey || agent.deployment?.status === "STATUS_DEPLOYING"}
               rows={1}
             />
             <button
               type="submit"
-              disabled={isLoading || !chatService || !apiKey}
+              disabled={isLoading || !chatService || !apiKey || agent.deployment?.status === "STATUS_DEPLOYING"}
               className="bg-accent-primary text-foreground-bright px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed disabled:text-foreground-disabled transition-colors text-sm sm:text-base self-end"
             >
               Send
