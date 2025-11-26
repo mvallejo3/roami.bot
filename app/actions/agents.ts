@@ -1,8 +1,8 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { API_BASE_URL, API_TOKEN } from "@/lib/utils/api-config";
 import type {
-  Agent,
   ApiAgent,
   CreateAgentInput,
   UpdateAgentInput,
@@ -270,3 +270,70 @@ export async function createApiKey(
   }
 }
 
+/**
+ * Get the cookie name for an agent's API key
+ */
+function getApiKeyCookieName(agentUuid: string): string {
+  return `agent-api-key-${agentUuid}`;
+}
+
+/**
+ * Get API key from cookie (read-only, does not create)
+ */
+export async function getApiKeyFromCookie(agentUuid: string): Promise<string> {
+  const cookieStore = await cookies();
+  const cookieName = getApiKeyCookieName(agentUuid);
+  const existingCookie = cookieStore.get(cookieName);
+
+  // If cookie exists, decode it from base64
+  if (existingCookie?.value) {
+    try {
+      const decodedKey = Buffer.from(existingCookie.value, "base64").toString("utf-8");
+      return decodedKey;
+    } catch (error) {
+      // If decoding fails, return empty string
+      console.error("Failed to decode API key cookie:", error);
+      return "";
+    }
+  }
+
+  return "";
+}
+
+/**
+ * Create API key and save it to cookie
+ * This is a Server Action that can modify cookies
+ */
+export async function createAndSaveApiKey(
+  agentId: string,
+  agentUuid: string
+): Promise<string> {
+  const cookieStore = await cookies();
+  const cookieName = getApiKeyCookieName(agentUuid);
+
+  try {
+    const apiKeyResponse = await createApiKey(agentId, {
+      id: agentId,
+      name: `Session API Key - ${new Date().toISOString()}`,
+    });
+
+    const secretKey = apiKeyResponse.api_key_info.secret_key;
+
+    // Encode the secret key as base64 and save it as a cookie
+    const encodedKey = Buffer.from(secretKey, "utf-8").toString("base64");
+    
+    cookieStore.set(cookieName, encodedKey, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      // Session cookie (no maxAge means it expires when browser closes)
+    });
+
+    return secretKey;
+  } catch (error) {
+    console.error("Failed to create API key:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to create API key"
+    );
+  }
+}
