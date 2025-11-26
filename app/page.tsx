@@ -6,7 +6,7 @@ export default async function Page() {
   const { agents } = await listAgents();
 
   return (<>
-  <DashboardPage agents={agents} />
-  <NewAgentForm />
+    <DashboardPage agents={agents} />
+    <NewAgentForm />
   </>);
 }
