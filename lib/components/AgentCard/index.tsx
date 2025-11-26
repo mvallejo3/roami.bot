@@ -1,9 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useDeleteAgentMutation } from "@/store/features/agents/agentApi";
-import { useListModelsQuery } from "@/store/features/models/modelApi";
 import type { ApiAgent } from "@/lib/types/agent";
 
 interface AgentCardProps {
@@ -12,24 +10,7 @@ interface AgentCardProps {
 
 export default function AgentCard({ agent }: AgentCardProps) {
   const router = useRouter();
-  const { data: modelsData } = useListModelsQuery();
   const [deleteAgent] = useDeleteAgentMutation();
-
-  // Create a mapping from model UUID to model name
-  const modelNameMap = useMemo(() => {
-    const map = new Map<string, string>();
-    if (modelsData?.models) {
-      modelsData.models.forEach((model) => {
-        map.set(model.uuid, model.name);
-      });
-    }
-    return map;
-  }, [modelsData]);
-
-  // Helper function to get model name from UUID
-  const getModelName = (modelUuid: string) => {
-    return modelNameMap.get(modelUuid) || modelUuid;
-  };
 
   const handleClick = () => {
     router.push(`/agent/${agent.uuid}`);
@@ -85,7 +66,7 @@ export default function AgentCard({ agent }: AgentCardProps) {
       )}
       <div className="flex items-center gap-2 text-xs text-foreground-secondary">
         <span className="bg-background-deep px-2 py-1 rounded">
-          {getModelName(agent.model.uuid)}
+          {agent.model.name}
         </span>
         {agent.retrieval_method && agent.retrieval_method !== "none" && (
           <span className="bg-background-deep px-2 py-1 rounded">
