@@ -6,6 +6,8 @@ import type {
   ApiAgent,
   CreateAgentInput,
   UpdateAgentInput,
+  CreateApiKeyInput,
+  CreateApiKeyResponse,
 } from "@/lib/types/agent";
 import { getServerToken } from "@/lib/firebase/server";
 
@@ -218,6 +220,52 @@ export async function deleteAgent(id: string): Promise<AgentResponse> {
     console.error("Error deleting agent:", error);
     throw new Error(
       error instanceof Error ? error.message : "Failed to delete agent"
+    );
+  }
+}
+
+/**
+ * Create an API key for an agent
+ */
+export async function createApiKey(
+  agentId: string,
+  input: CreateApiKeyInput
+): Promise<CreateApiKeyResponse> {
+  if (!agentId || typeof agentId !== "string") {
+    throw new Error("Agent ID is required");
+  }
+  if (!input.name || typeof input.name !== "string") {
+    throw new Error("API key name is required");
+  }
+
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE_URL}/api/agents/${agentId}/api-keys`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          id: agentId,
+          name: input.name,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message ||
+          `Failed to create API key: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error creating API key:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to create API key"
     );
   }
 }

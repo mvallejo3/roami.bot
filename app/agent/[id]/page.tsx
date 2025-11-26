@@ -32,7 +32,7 @@ export default function AgentChatPage() {
   useEffect(() => {
     if (agent && chatService === null) {
       const service = new ChatService({
-        apiUrl: agent.deployment?.url || "",
+        apiUrl: `${agent.deployment?.url}/api/v1` || "",
         apiKey: agent.api_keys?.[0]?.api_key || "",
         model: agent.model.uuid,
       });

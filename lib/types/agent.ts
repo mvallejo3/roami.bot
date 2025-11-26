@@ -156,3 +156,21 @@ export interface UpdateAgentInput extends CreateAgentInput {
   knowledgeBaseUuid?: string;
 }
 
+export interface CreateApiKeyInput {
+  id: string;
+  name: string;
+}
+
+export interface ApiKeyInfo {
+  created_at: string; // ISO8601 date string
+  created_by: string;
+  name: string;
+  secret_key: string;
+  uuid: string;
+}
+
+export interface CreateApiKeyResponse {
+  api_key_info: ApiKeyInfo;
+  status: string;
+}
+
