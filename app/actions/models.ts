@@ -8,8 +8,19 @@ import { getServerToken } from "@/lib/firebase/server";
  * Response types matching the API structure
  */
 export interface ModelsListResponse {
+  links: {
+    pages: {
+      first: string;
+      last: string;
+    };
+  };
+  meta: {
+    page: number;
+    pages: number;
+    total: number;
+  };
   models: Model[];
-  count?: number;
+  status: string;
 }
 
 /**

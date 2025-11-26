@@ -1,10 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { Model } from "@/lib/types/model";
-
-export interface ModelsListResponse {
-  models: Model[];
-  count?: number;
-}
+import type { ModelsListResponse } from "@/app/actions/models";
 
 export const modelApi = createApi({
   reducerPath: "modelApi",
