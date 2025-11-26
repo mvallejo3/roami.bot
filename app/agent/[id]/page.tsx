@@ -30,21 +30,21 @@ export default function AgentChatPage() {
   }, [error, router]);
 
   useEffect(() => {
-    if (agent) {
+    if (agent && chatService === null) {
       const service = new ChatService({
-        apiUrl: agent.openaiApiUrl,
-        apiKey: agent.openaiApiKey,
-        model: agent.openaiModel,
+        apiUrl: agent.deployment?.url || "",
+        apiKey: agent.api_keys?.[0]?.api_key || "",
+        model: agent.model.uuid,
       });
       setChatService(service);
 
       // Add system instructions if provided
-      if (agent.instructions) {
+      if (agent.instruction) {
         setMessages([
           {
             id: "system",
             role: "assistant",
-            content: agent.instructions,
+            content: agent.instruction,
             timestamp: Date.now(),
           },
         ]);
@@ -56,7 +56,7 @@ export default function AgentChatPage() {
         chatService.closeStream();
       }
     };
-  }, [agent]);
+  }, [agent, chatService]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -106,11 +106,11 @@ export default function AgentChatPage() {
       // Convert messages to chat format (excluding the empty assistant message we just added)
       // Filter out system messages and empty assistant messages
       const chatMessages = [
-        ...(agent?.instructions
+        ...(agent?.instruction
           ? [
               {
                 role: "system" as const,
-                content: agent.instructions,
+                content: agent.instruction,
               },
             ]
           : []),

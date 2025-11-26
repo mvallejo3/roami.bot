@@ -125,6 +125,9 @@ export async function createAgent(input: CreateAgentInput): Promise<AgentRespons
   if (!input.name || typeof input.name !== "string") {
     throw new Error("Agent name is required");
   }
+  if (!input.instructions || typeof input.instructions !== "string") {
+    throw new Error("Agent instructions is required");
+  }
 
   try {
     const headers = await getAuthHeaders();
@@ -188,52 +191,9 @@ export async function updateAgent(
 }
 
 /**
- * Update knowledgebase for an agent
- */
-export async function updateAgentKnowledgeBase(
-  id: string,
-  input: UpdateKnowledgeBaseInput
-): Promise<AgentResponse> {
-  if (!id || typeof id !== "string") {
-    throw new Error("Agent ID is required");
-  }
-
-  if (!input.knowledgeBaseUuid || typeof input.knowledgeBaseUuid !== "string") {
-    throw new Error("Knowledge base UUID is required");
-  }
-
-  try {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/api/agents/${id}/knowledgebase`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify(input),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.message ||
-          `Failed to update agent knowledge base: ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error updating agent knowledge base:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Failed to update agent knowledge base"
-    );
-  }
-}
-
-/**
  * Delete an agent
  */
-export async function deleteAgent(id: string): Promise<void> {
+export async function deleteAgent(id: string): Promise<AgentResponse> {
   if (!id || typeof id !== "string") {
     throw new Error("Agent ID is required");
   }
@@ -251,6 +211,9 @@ export async function deleteAgent(id: string): Promise<void> {
         errorData.message || `Failed to delete agent: ${response.statusText}`
       );
     }
+
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error("Error deleting agent:", error);
     throw new Error(

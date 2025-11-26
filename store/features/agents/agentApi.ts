@@ -3,11 +3,10 @@ import type {
   CreateAgentInput,
   UpdateAgentInput,
 } from "@/lib/types/agent";
-import type { AgentsListResponse, AgentResponse } from "@/app/actions/agents";
-
-export interface UpdateKnowledgeBaseInput {
-  knowledgeBaseUuid: string;
-}
+import type {
+  AgentsListResponse,
+  AgentResponse,
+} from "@/app/actions/agents";
 
 export const agentApi = createApi({
   reducerPath: "agentApi",
@@ -60,24 +59,8 @@ export const agentApi = createApi({
       ],
     }),
 
-    // Update knowledgebase for an agent
-    updateKnowledgeBase: builder.mutation<
-      AgentResponse,
-      { id: string; input: UpdateKnowledgeBaseInput }
-    >({
-      query: ({ id, input }) => ({
-        url: `/api/agents/${id}/knowledgebase`,
-        method: "PATCH",
-        body: input,
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: "Agent", id },
-        "Agent",
-      ],
-    }),
-
     // Delete an agent
-    deleteAgent: builder.mutation<{message: string, agentId: string}, string>({
+    deleteAgent: builder.mutation<AgentResponse, string>({
       query: (id) => ({
         url: `/api/agents/${id}`,
         method: "DELETE",
@@ -92,7 +75,6 @@ export const {
   useGetAgentQuery,
   useCreateAgentMutation,
   useUpdateAgentMutation,
-  useUpdateKnowledgeBaseMutation,
   useDeleteAgentMutation,
 } = agentApi;
 

@@ -17,6 +17,40 @@ export interface Agent {
 }
 
 /**
+ * Knowledge base indexing job type
+ */
+export interface KnowledgeBaseIndexingJob {
+  created_at: string; // ISO8601 date string
+  finished_at: string; // ISO8601 date string
+  is_report_available: boolean;
+  knowledge_base_uuid: string;
+  phase: string;
+  started_at: string; // ISO8601 date string
+  status: string;
+  tokens: number;
+  total_tokens: string;
+  updated_at: string; // ISO8601 date string
+  uuid: string;
+}
+
+/**
+ * Knowledge base type
+ */
+export interface KnowledgeBase {
+  added_to_agent_at: string; // ISO8601 date string
+  created_at: string; // ISO8601 date string
+  database_id: string;
+  embedding_model_uuid: string;
+  last_indexing_job?: KnowledgeBaseIndexingJob;
+  name: string;
+  project_id: string;
+  region: string;
+  tags?: string[];
+  updated_at: string; // ISO8601 date string
+  uuid: string;
+}
+
+/**
  * API Agent type - matches the structure returned from the DigitalOcean GenAI API
  */
 export interface ApiAgent {
@@ -38,6 +72,7 @@ export interface ApiAgent {
   description?: string;
   instruction: string;
   k: number;
+  knowledge_bases?: KnowledgeBase[];
   max_tokens: number;
   model: {
     agreement: {
@@ -111,21 +146,13 @@ export interface ApiAgent {
 
 export interface CreateAgentInput {
   name: string;
-  agentType: "default" | "custom";
+  // agentType: "default" | "custom";
   description?: string;
   instructions?: string;
-  openaiApiUrl?: string;
-  openaiApiKey?: string;
-  openaiModel?: string;
+  model?: string;
 }
 
-export interface UpdateAgentInput {
-  name?: string;
-  description?: string;
-  instructions?: string;
-  openaiApiUrl?: string;
-  openaiApiKey?: string;
-  openaiModel?: string;
+export interface UpdateAgentInput extends CreateAgentInput {
   knowledgeBaseUuid?: string;
 }
 

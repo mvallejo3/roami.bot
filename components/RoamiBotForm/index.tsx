@@ -16,8 +16,8 @@ interface RoamiBotFormData {
   name: string;
   description: string;
   instructions: string;
-  openaiModel: string;
-  openaiApiKey: string;
+  model: string;
+  // openaiApiKey: string;
 }
 
 export default function RoamiBotForm({
@@ -30,8 +30,8 @@ export default function RoamiBotForm({
     name: "",
     description: "",
     instructions: "",
-    openaiModel: "",
-    openaiApiKey: "",
+    model: "",
+    // openaiApiKey: "",
   });
   const [noAPIKeyRequiredModelUUIDs, setNoAPIKeyRequiredModelUUIDs] =
     useState<string[]>([]);
@@ -56,14 +56,14 @@ export default function RoamiBotForm({
     if (
       modelsData?.models &&
       modelsData.models.length > 0 &&
-      !formData.openaiModel
+      !formData.model
     ) {
       setFormData((prev) => ({
         ...prev,
-        openaiModel: modelsData.models[0].uuid,
+        model: modelsData.models[0].uuid,
       }));
     }
-  }, [modelsData, formData.openaiModel]);
+  }, [modelsData, formData.model]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,23 +77,22 @@ export default function RoamiBotForm({
       return;
     }
 
-    const selectedModel = formData.openaiModel;
+    const selectedModel = formData.model;
     const requiresApiKey =
       selectedModel &&
       !noAPIKeyRequiredModelUUIDs.includes(selectedModel);
 
     const submitData: CreateAgentInput = {
       name: formData.name.trim(),
-      agentType: "default",
       description: formData.description.trim() || undefined,
       instructions: formData.instructions.trim(),
-      openaiModel: formData.openaiModel.trim() || undefined,
+      model: formData.model.trim() || undefined,
     };
 
     // Only include API key if the model requires it
-    if (requiresApiKey && formData.openaiApiKey.trim()) {
-      submitData.openaiApiKey = formData.openaiApiKey.trim();
-    }
+    // if (requiresApiKey && formData.openaiApiKey.trim()) {
+    //   submitData.openaiApiKey = formData.openaiApiKey.trim();
+    // }
 
     await onSubmit(submitData);
 
@@ -103,8 +102,8 @@ export default function RoamiBotForm({
       name: "",
       description: "",
       instructions: "",
-      openaiModel: defaultModel,
-      openaiApiKey: "",
+      model: defaultModel,
+      // openaiApiKey: "",
     });
   };
 
@@ -114,13 +113,13 @@ export default function RoamiBotForm({
       name: "",
       description: "",
       instructions: "",
-      openaiModel: defaultModel,
-      openaiApiKey: "",
+      model: defaultModel,
+      // openaiApiKey: "",
     });
     dispatch(closeForm());
   };
 
-  const selectedModel = formData.openaiModel;
+  const selectedModel = formData.model;
   const requiresApiKey =
     selectedModel && !noAPIKeyRequiredModelUUIDs.includes(selectedModel);
 
@@ -178,9 +177,9 @@ export default function RoamiBotForm({
           AI Model
         </label>
         <select
-          value={formData.openaiModel}
+          value={formData.model}
           onChange={(e) =>
-            setFormData({ ...formData, openaiModel: e.target.value })
+            setFormData({ ...formData, model: e.target.value })
           }
           className="w-full bg-background border border-divider rounded-lg px-4 py-2 text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent"
         >
@@ -193,7 +192,7 @@ export default function RoamiBotForm({
         </select>
       </div>
 
-      {requiresApiKey && (
+      {/* {requiresApiKey && (
         <div>
           <label className="block text-sm font-medium text-foreground mb-1">
             AI Model API Key
@@ -208,7 +207,7 @@ export default function RoamiBotForm({
             placeholder="sk-..."
           />
         </div>
-      )}
+      )} */}
 
       <div className="flex gap-3 pt-4">
         <button

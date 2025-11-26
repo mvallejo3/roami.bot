@@ -34,16 +34,16 @@ export default function KnowledgebasePage() {
   }, [agentError, router]);
 
   useEffect(() => {
-    if (agent?.knowledgeBaseUuid) {
-      setKnowledgeBaseUuid(agent.knowledgeBaseUuid);
+    if (agent?.knowledge_bases && agent.knowledge_bases.length > 0) {
+      setKnowledgeBaseUuid(agent.knowledge_bases[0].uuid);
     }
   }, [agent]);
 
-  useEffect(() => {
-    if (knowledgeBaseUuid) {
-      fetchFiles();
-    }
-  }, [knowledgeBaseUuid]);
+  // useEffect(() => {
+  //   if (knowledgeBaseUuid) {
+  //     fetchFiles();
+  //   }
+  // }, [knowledgeBaseUuid]);
 
   const fetchFiles = async () => {
     if (!knowledgeBaseUuid) return;

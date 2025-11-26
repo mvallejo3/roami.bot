@@ -9,7 +9,6 @@ import { closeForm } from "@/store/features/agentForm/agentFormSlice";
 import { selectAgentFormIsOpen } from "@/store/features/agentForm/agentFormSelectors";
 import type { CreateAgentInput } from "@/lib/types/agent";
 import RoamiBotForm from "@/components/RoamiBotForm";
-import CustomForm from "@/components/CustomForm";
 
 
 export default function NewAgentForm() {
@@ -75,17 +74,7 @@ export default function NewAgentForm() {
                   modelsData={modelsData}
                 />
               ),
-            },
-            {
-              id: "custom-agent",
-              label: "Custom Agent",
-              content: (
-                <CustomForm
-                  onSubmit={handleCreateAgent}
-                  isSubmitting={isCreating}
-                />
-              ),
-            },
+            }
           ]}
           defaultTab="roami-bot"
           onTabChange={(tabId) =>
