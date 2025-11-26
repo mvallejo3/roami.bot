@@ -200,7 +200,7 @@ export async function deleteAgent(id: string): Promise<AgentResponse> {
 
   try {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/api/agents?agentId=${id}`, {
+    const response = await fetch(`${API_BASE_URL}/api/agents/${id}`, {
       method: "DELETE",
       headers,
     });
