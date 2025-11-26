@@ -1,15 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useStandalone } from "@/lib/hooks/useStandalone";
-import { useCreateAgentMutation } from "@/store/features/agents/agentApi";
-import { openForm, closeForm } from "@/store/features/agentForm/agentFormSlice";
+import { openForm } from "@/store/features/agentForm/agentFormSlice";
 import NewAgentForm from "@/components/NewAgentForm";
 import PageHeader from "@/lib/components/PageHeader";
 import AgentCard from "@/lib/components/AgentCard";
 import NoAgents from "@/lib/components/NoAgents";
-import type { CreateAgentInput, ApiAgent } from "@/lib/types/agent";
+import type { ApiAgent } from "@/lib/types/agent";
 
 interface DashboardPageProps {
   agents: ApiAgent[];
@@ -17,22 +15,7 @@ interface DashboardPageProps {
 
 export default function DashboardPage({ agents }: DashboardPageProps) {
   const dispatch = useDispatch();
-  const [createAgent] = useCreateAgentMutation();
-  const [isCreating, setIsCreating] = useState(false);
   const isStandalone = useStandalone();
-
-  const handleCreateAgent = async (data: CreateAgentInput) => {
-    setIsCreating(true);
-    try {
-      await createAgent(data).unwrap();
-      dispatch(closeForm());
-    } catch (error) {
-      console.error("Error creating agent:", error);
-      alert("Failed to create agent. Please try again.");
-    } finally {
-      setIsCreating(false);
-    }
-  };
 
   return (
     <div
@@ -69,10 +52,7 @@ export default function DashboardPage({ agents }: DashboardPageProps) {
       </div>
 
       {/* Create Agent Modal */}
-      <NewAgentForm
-        onSubmit={handleCreateAgent}
-        isSubmitting={isCreating}
-      />
+      <NewAgentForm />
     </div>
   );
 }

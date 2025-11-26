@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Tabs from "./Tabs";
 import { useListModelsQuery } from "@/store/features/models/modelApi";
+import { useCreateAgentMutation } from "@/store/features/agents/agentApi";
 import { closeForm } from "@/store/features/agentForm/agentFormSlice";
 import { selectAgentFormIsOpen } from "@/store/features/agentForm/agentFormSelectors";
 import type { CreateAgentInput } from "@/lib/types/agent";
@@ -12,21 +13,30 @@ import CustomForm from "@/components/CustomForm";
 
 interface NewAgentFormProps {
   onClose?: () => void;
-  onSubmit: (data: CreateAgentInput) => Promise<void>;
-  isSubmitting?: boolean;
 }
 
-export default function NewAgentForm({
-  onClose,
-  onSubmit,
-  isSubmitting = false,
-}: NewAgentFormProps) {
+export default function NewAgentForm({ onClose }: NewAgentFormProps) {
   const dispatch = useDispatch();
   const isOpen = useSelector(selectAgentFormIsOpen);
+  const [createAgent] = useCreateAgentMutation();
+  const [isCreating, setIsCreating] = useState(false);
   const { data: modelsData } = useListModelsQuery();
   const [agentType, setAgentType] = useState<"roami-bot" | "custom-agent">(
     "roami-bot"
   );
+
+  const handleCreateAgent = async (data: CreateAgentInput) => {
+    setIsCreating(true);
+    try {
+      await createAgent(data).unwrap();
+      dispatch(closeForm());
+    } catch (error) {
+      console.error("Error creating agent:", error);
+      alert("Failed to create agent. Please try again.");
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   const handleClose = () => {
     setAgentType("roami-bot");
@@ -71,9 +81,9 @@ export default function NewAgentForm({
               label: "Roami Bot",
               content: (
                 <RoamiBotForm
-                  onSubmit={onSubmit}
+                  onSubmit={handleCreateAgent}
                   onClose={handleClose}
-                  isSubmitting={isSubmitting}
+                  isSubmitting={isCreating}
                   modelsData={modelsData}
                 />
               ),
@@ -83,9 +93,9 @@ export default function NewAgentForm({
               label: "Custom Agent",
               content: (
                 <CustomForm
-                  onSubmit={onSubmit}
+                  onSubmit={handleCreateAgent}
                   onClose={handleClose}
-                  isSubmitting={isSubmitting}
+                  isSubmitting={isCreating}
                 />
               ),
             },
