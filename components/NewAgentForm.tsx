@@ -1,25 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Tabs from "./Tabs";
 import { useListModelsQuery } from "@/store/features/models/modelApi";
+import { closeForm } from "@/store/features/agentForm/agentFormSlice";
+import { selectAgentFormIsOpen } from "@/store/features/agentForm/agentFormSelectors";
 import type { CreateAgentInput } from "@/lib/types/agent";
 import RoamiBotForm from "@/components/RoamiBotForm";
 import CustomForm from "@/components/CustomForm";
 
 interface NewAgentFormProps {
-  isOpen: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   onSubmit: (data: CreateAgentInput) => Promise<void>;
   isSubmitting?: boolean;
 }
 
 export default function NewAgentForm({
-  isOpen,
   onClose,
   onSubmit,
   isSubmitting = false,
 }: NewAgentFormProps) {
+  const dispatch = useDispatch();
+  const isOpen = useSelector(selectAgentFormIsOpen);
   const { data: modelsData } = useListModelsQuery();
   const [agentType, setAgentType] = useState<"roami-bot" | "custom-agent">(
     "roami-bot"
@@ -27,7 +30,8 @@ export default function NewAgentForm({
 
   const handleClose = () => {
     setAgentType("roami-bot");
-    onClose();
+    dispatch(closeForm());
+    onClose?.();
   };
 
   if (!isOpen) return null;

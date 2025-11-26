@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useStandalone } from "@/lib/hooks/useStandalone";
 import { useCreateAgentMutation } from "@/store/features/agents/agentApi";
+import { openForm, closeForm } from "@/store/features/agentForm/agentFormSlice";
 import NewAgentForm from "@/components/NewAgentForm";
 import PageHeader from "@/lib/components/PageHeader";
 import AgentCard from "@/lib/components/AgentCard";
@@ -14,8 +16,8 @@ interface DashboardPageProps {
 }
 
 export default function DashboardPage({ agents }: DashboardPageProps) {
+  const dispatch = useDispatch();
   const [createAgent] = useCreateAgentMutation();
-  const [showCreateForm, setShowCreateForm] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const isStandalone = useStandalone();
 
@@ -23,7 +25,7 @@ export default function DashboardPage({ agents }: DashboardPageProps) {
     setIsCreating(true);
     try {
       await createAgent(data).unwrap();
-      setShowCreateForm(false);
+      dispatch(closeForm());
     } catch (error) {
       console.error("Error creating agent:", error);
       alert("Failed to create agent. Please try again.");
@@ -43,7 +45,7 @@ export default function DashboardPage({ agents }: DashboardPageProps) {
         description="AI Agent Dashboard"
         rightAction={
           <button
-            onClick={() => setShowCreateForm(true)}
+            onClick={() => dispatch(openForm())}
             className="bg-accent-primary text-foreground-bright px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium text-sm sm:text-base"
           >
             + New Agent
@@ -55,7 +57,7 @@ export default function DashboardPage({ agents }: DashboardPageProps) {
       <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
         <div className="max-w-6xl mx-auto">
           {agents.length === 0 ? (
-            <NoAgents onCreateClick={() => setShowCreateForm(true)} />
+            <NoAgents onCreateClick={() => dispatch(openForm())} />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {agents.map((agent) => (
@@ -68,8 +70,6 @@ export default function DashboardPage({ agents }: DashboardPageProps) {
 
       {/* Create Agent Modal */}
       <NewAgentForm
-        isOpen={showCreateForm}
-        onClose={() => setShowCreateForm(false)}
         onSubmit={handleCreateAgent}
         isSubmitting={isCreating}
       />
