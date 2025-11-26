@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getFiles, deleteFile, uploadFiles, reindexKnowledgeBase, type FileInfo } from "@/app/actions/knowledgebase";
 import { useStandalone } from "@/lib/hooks/useStandalone";
 import { useGetAgentQuery } from "@/store/features/agents/agentApi";
+import PageHeader from "@/lib/components/PageHeader";
 
 export default function KnowledgebasePage() {
   const params = useParams();
@@ -232,37 +233,12 @@ export default function KnowledgebasePage() {
       style={{ paddingTop: isStandalone ? "36px" : "0" }}
     >
       {/* Header */}
-      <header className="border-b border-divider px-4 py-3 sm:px-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link
-              href={`/agent/${agentId}`}
-              className="text-foreground-secondary hover:text-foreground transition-colors"
-              aria-label="Back to Agent"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-            </Link>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-semibold text-accent-primary">
-                Knowledgebase
-              </h1>
-              <p className="text-sm text-foreground-secondary mt-1">
-                {agent.name} - Manage your knowledgebase files
-              </p>
-            </div>
-          </div>
+      <PageHeader
+        title="Knowledgebase"
+        description={`${agent.name} - Manage your knowledgebase files`}
+        backHref={`/agent/${agentId}`}
+        backAriaLabel="Back to Agent"
+        rightAction={
           <div className="flex items-center gap-4">
             <div className="text-sm font-medium text-foreground">
               {files.length} out of 10 files
@@ -287,8 +263,8 @@ export default function KnowledgebasePage() {
               </svg>
             </Link>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">

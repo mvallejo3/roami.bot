@@ -8,6 +8,7 @@ import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { useStandalone } from "@/lib/hooks/useStandalone";
 import { ChatService } from "@/lib/services/chatService";
 import { useGetAgentQuery } from "@/store/features/agents/agentApi";
+import PageHeader from "@/lib/components/PageHeader";
 
 export default function AgentChatPage() {
   const params = useParams();
@@ -217,39 +218,12 @@ export default function AgentChatPage() {
       style={{ paddingTop: isStandalone ? "36px" : "0" }}
     >
       {/* Header */}
-      <header className="border-b border-divider px-4 py-3 sm:px-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="text-foreground-secondary hover:text-foreground transition-colors"
-              aria-label="Back to Dashboard"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-            </Link>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-semibold text-accent-primary">
-                {agent.name}
-              </h1>
-              {agent.description && (
-                <p className="text-sm text-foreground-secondary mt-1">
-                  {agent.description}
-                </p>
-              )}
-            </div>
-          </div>
+      <PageHeader
+        title={agent.name}
+        description={agent.description || undefined}
+        backHref="/"
+        backAriaLabel="Back to Dashboard"
+        rightAction={
           <Link
             href={`/agent/${agentId}/knowledgebase`}
             className="bg-accent-primary text-foreground-bright p-2 rounded-lg hover:opacity-90 transition-opacity"
@@ -269,8 +243,8 @@ export default function AgentChatPage() {
               />
             </svg>
           </Link>
-        </div>
-      </header>
+        }
+      />
 
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 pb-20">

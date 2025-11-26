@@ -9,6 +9,7 @@ import {
 } from "@/store/features/agents/agentApi";
 import { useListModelsQuery } from "@/store/features/models/modelApi";
 import NewAgentForm from "@/components/NewAgentForm";
+import PageHeader from "@/lib/components/PageHeader";
 import type { CreateAgentInput, ApiAgent } from "@/lib/types/agent";
 
 interface DashboardPageProps {
@@ -76,24 +77,18 @@ export default function DashboardPage({ agents }: DashboardPageProps) {
       style={{ paddingTop: isStandalone ? "36px" : "0" }}
     >
       {/* Header */}
-      <header className="border-b border-divider px-4 py-3 sm:px-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-accent-primary">
-              Roami
-            </h1>
-            <p className="text-sm text-foreground-secondary mt-1">
-              AI Agent Dashboard
-            </p>
-          </div>
+      <PageHeader
+        title="Roami"
+        description="AI Agent Dashboard"
+        rightAction={
           <button
             onClick={() => setShowCreateForm(true)}
             className="bg-accent-primary text-foreground-bright px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium text-sm sm:text-base"
           >
             + New Agent
           </button>
-        </div>
-      </header>
+        }
+      />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
