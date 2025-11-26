@@ -1,9 +1,7 @@
 "use client";
 
 import { useDispatch } from "react-redux";
-import { useStandalone } from "@/lib/hooks/useStandalone";
 import { openForm } from "@/store/features/agentForm/agentFormSlice";
-import NewAgentForm from "@/components/NewAgentForm";
 import PageHeader from "@/lib/components/PageHeader";
 import AgentCard from "@/lib/components/AgentCard";
 import NoAgents from "@/lib/components/NoAgents";
@@ -15,12 +13,10 @@ interface DashboardPageProps {
 
 export default function DashboardPage({ agents }: DashboardPageProps) {
   const dispatch = useDispatch();
-  const isStandalone = useStandalone();
 
   return (
     <div
-      className="flex flex-col h-screen bg-background text-foreground"
-      style={{ paddingTop: isStandalone ? "36px" : "0" }}
+      className="flex flex-col h-screen bg-background text-foreground pt-16"
     >
       {/* Header */}
       <PageHeader
@@ -50,9 +46,6 @@ export default function DashboardPage({ agents }: DashboardPageProps) {
           )}
         </div>
       </div>
-
-      {/* Create Agent Modal */}
-      <NewAgentForm />
     </div>
   );
 }
