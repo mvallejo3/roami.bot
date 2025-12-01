@@ -9,3 +9,6 @@ export const API_TOKEN =
 
 export const NO_API_KEY_REQUIRED_MODELS = 
   process.env.NO_API_KEY_REQUIRED_MODEL_UUIDS?.split(',') || [];
+
+export const EMBEDDING_MODEL_UUID = process.env.EMBEDDING_MODEL_UUID || "";
+export const DATABASE_ID = process.env.DATABASE_ID || "";

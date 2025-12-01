@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CreateKnowledgeBaseInput } from "@/lib/types/knowledgebase";
+import { EMBEDDING_MODEL_UUID, DATABASE_ID } from "@/lib/utils/api-config";
 
 export interface NewKnowledgeBaseFormProps {
   onSubmit: (data: CreateKnowledgeBaseInput) => Promise<void>;
@@ -20,10 +21,6 @@ const REGIONS = [
   { value: "nyc1", label: "New York 1 (nyc1)" },
   { value: "nyc3", label: "New York 3 (nyc3)" },
 ];
-
-// Hidden fields as per requirements
-const EMBEDDING_MODEL_UUID = "22652c2a-79ed-11ef-bf8f-4e013e2ddde4";
-const DATABASE_ID = "eb400988-68af-4ad6-ad15-ab91b7e85625";
 
 export default function NewKnowledgeBaseForm({
   onSubmit,

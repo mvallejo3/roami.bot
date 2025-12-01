@@ -198,7 +198,7 @@ export default function AgentChat({ agent, apiKey, agentId }: AgentChatProps) {
 
   return (
     <div
-      className="flex flex-col h-screen bg-background text-foreground"
+      className="flex flex-col bg-background text-foreground"
     >
       {/* Header */}
       <PageHeader
@@ -263,7 +263,7 @@ export default function AgentChat({ agent, apiKey, agentId }: AgentChatProps) {
             </div>
           </div>
         ) : messages.filter((msg) => msg.id !== "system").length === 0 ? (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex items-center justify-center h-full pt-[30%] md:pt-[20%]">
             <div className="text-center">
               <h2 className="text-2xl font-semibold mb-2 text-accent-primary">
                 {`Hi, I'm ${agent.name}`}
