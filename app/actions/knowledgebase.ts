@@ -1,6 +1,8 @@
 "use server";
 
 import { API_BASE_URL, API_TOKEN } from "@/lib/utils/api-config";
+import { getServerToken } from "@/lib/firebase/server";
+import type { KnowledgeBasesListResponse } from "@/lib/types/knowledgebase";
 
 export interface ChatResponse {
   answer: string;
@@ -121,6 +123,55 @@ export interface ReindexKnowledgeBaseResponse {
 export interface ReindexKnowledgeBaseParams {
   knowledge_base_uuid: string;
   data_source_uuids?: string[];
+}
+
+/**
+ * Get authorization header for API requests
+ */
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const token = await getServerToken();
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+  };
+
+  // Use Firebase token if available, otherwise fall back to hardcoded token for now
+  // TODO: Replace with proper API key management
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  } else {
+    headers["Authorization"] = `Bearer ${API_TOKEN}`;
+  }
+
+  return headers;
+}
+
+/**
+ * List all knowledge bases
+ */
+export async function listKnowledgeBases(): Promise<KnowledgeBasesListResponse> {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE_URL}/api/knowledgebase`, {
+      method: "GET",
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `Failed to fetch knowledge bases: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error listing knowledge bases:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to list knowledge bases"
+    );
+  }
 }
 
 export async function reindexKnowledgeBase(
