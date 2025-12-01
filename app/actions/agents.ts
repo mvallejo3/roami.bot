@@ -55,11 +55,12 @@ async function getAuthHeaders(): Promise<HeadersInit> {
 
   // Use Firebase token if available, otherwise fall back to hardcoded token for now
   // TODO: Replace with proper API key management
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  } else {
-    headers["Authorization"] = `Bearer ${API_TOKEN}`;
-  }
+  headers["Authorization"] = `Bearer ${API_TOKEN}`;
+  // if (token) {
+  //   headers["Authorization"] = `Bearer ${token}`;
+  // } else {
+  //   headers["Authorization"] = `Bearer ${API_TOKEN}`;
+  // }
 
   return headers;
 }
