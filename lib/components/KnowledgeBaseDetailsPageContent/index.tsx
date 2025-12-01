@@ -216,6 +216,33 @@ export default function KnowledgeBaseDetailsPageContent({
                         <p className="text-sm text-foreground-secondary mb-1">Region</p>
                         <p className="text-foreground font-medium">{dataSource.region}</p>
                       </div>
+                      {dataSource.file_upload_data_source && (
+                        <>
+                          <div className="md:col-span-2 border-t border-divider pt-4 mt-2">
+                            <p className="text-sm font-semibold text-foreground mb-3">File Upload Information</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-sm text-foreground-secondary mb-1">Original File Name</p>
+                                <p className="text-foreground font-medium">
+                                  {dataSource.file_upload_data_source.original_file_name}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-foreground-secondary mb-1">File Size</p>
+                                <p className="text-foreground font-medium">
+                                  {formatFileSize(parseInt(dataSource.file_upload_data_source.size_in_bytes, 10))}
+                                </p>
+                              </div>
+                              <div className="md:col-span-2">
+                                <p className="text-sm text-foreground-secondary mb-1">Stored Object Key</p>
+                                <p className="text-foreground font-medium break-all">
+                                  {dataSource.file_upload_data_source.stored_object_key}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
                       {dataSource.last_datasource_indexing_job && (
                         <div className="md:col-span-2">
                           <p className="text-sm text-foreground-secondary mb-2">Last Indexing Status</p>

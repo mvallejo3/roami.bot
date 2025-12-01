@@ -119,12 +119,20 @@ export interface SpacesDataSource {
   region: string;
 }
 
+export interface FileUploadDataSource {
+  original_file_name: string;
+  size_in_bytes: string;
+  stored_object_key: string;
+}
+
 export interface DataSource {
   bucket_name: string;
   created_at: string;
   last_datasource_indexing_job: LastDatasourceIndexingJob | null;
   region: string;
-  spaces_data_source: SpacesDataSource;
+  spaces_data_source?: SpacesDataSource;
+  file_upload_data_source?: FileUploadDataSource;
+  
   updated_at: string;
   uuid: string;
 }
