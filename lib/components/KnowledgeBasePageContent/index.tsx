@@ -10,25 +10,25 @@ interface KnowledgeBasePageContentProps {
   knowledgeBases: KnowledgeBase[];
 }
 
+const formatDate = (dateString: string): string => {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+};
+
 export default function KnowledgeBasePageContent({
   agent,
   agentId,
   knowledgeBases,
 }: KnowledgeBasePageContentProps) {
   const isStandalone = useStandalone();
-
-  const formatDate = (dateString: string): string => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    } catch {
-      return dateString;
-    }
-  };
 
   const handleCreateKnowledgeBase = () => {
     // TODO: Implement knowledge base creation/attachment flow
@@ -147,9 +147,9 @@ export default function KnowledgeBasePageContent({
                             {kb.last_indexing_job ? (
                               <span
                                 className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                                  kb.last_indexing_job.status === "completed"
+                                  kb.last_indexing_job.status === "INDEX_JOB_STATUS_COMPLETED"
                                     ? "bg-accent-primary/20 text-accent-primary"
-                                    : kb.last_indexing_job.status === "failed"
+                                    : kb.last_indexing_job.status === "INDEX_JOB_STATUS_FAILED"
                                     ? "bg-accent-error/20 text-accent-error"
                                     : "bg-background-deep text-foreground-secondary"
                                 }`}
