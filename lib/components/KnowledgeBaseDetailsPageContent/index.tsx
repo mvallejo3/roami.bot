@@ -185,7 +185,7 @@ export default function KnowledgeBaseDetailsPageContent({
                   <div>
                     <p className="text-sm text-foreground-secondary mb-1">Total Tokens</p>
                     <p className="text-foreground font-medium">
-                      {knowledge_base.last_indexing_job.total_tokens || knowledge_base.last_indexing_job.tokens}
+                      {/* {knowledge_base.last_indexing_job.total_tokens || knowledge_base.last_indexing_job.tokens} */}
                     </p>
                   </div>
                 </div>
