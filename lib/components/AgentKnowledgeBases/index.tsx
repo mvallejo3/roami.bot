@@ -4,7 +4,7 @@ import { useStandalone } from "@/lib/hooks/useStandalone";
 import PageHeader from "@/lib/components/PageHeader";
 import type { ApiAgent, KnowledgeBase } from "@/lib/types/agent";
 
-interface KnowledgeBasePageContentProps {
+interface AgentKnowledgeBasesProps {
   agent: ApiAgent;
   agentId: string;
   knowledgeBases: KnowledgeBase[];
@@ -23,11 +23,11 @@ const formatDate = (dateString: string): string => {
   }
 };
 
-export default function KnowledgeBasePageContent({
+export default function AgentKnowledgeBases({
   agent,
   agentId,
   knowledgeBases,
-}: KnowledgeBasePageContentProps) {
+}: AgentKnowledgeBasesProps) {
   const isStandalone = useStandalone();
 
   const handleCreateKnowledgeBase = () => {
@@ -42,7 +42,7 @@ export default function KnowledgeBasePageContent({
     >
       {/* Header */}
       <PageHeader
-        title="Knowledge Bases"
+        title="Knowledge Base"
         description={`${agent.name} - Manage knowledge bases`}
         backHref={`/agent/${agentId}`}
         backAriaLabel="Back to Agent"

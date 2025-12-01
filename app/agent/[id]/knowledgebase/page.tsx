@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAgent } from "@/app/actions/agents";
-import KnowledgeBasePageContent from "@/lib/components/KnowledgeBasePageContent";
+import AgentKnowledgeBases from "@/lib/components/AgentKnowledgeBases";
 import type { KnowledgeBase } from "@/lib/types/agent";
 
 interface KnowledgebasePageProps {
@@ -22,7 +22,7 @@ export default async function KnowledgebasePage({ params }: KnowledgebasePagePro
     const knowledgeBases: KnowledgeBase[] = agent.knowledge_bases || [];
 
     return (
-      <KnowledgeBasePageContent
+      <AgentKnowledgeBases
         agent={agent}
         agentId={agentId}
         knowledgeBases={knowledgeBases}
