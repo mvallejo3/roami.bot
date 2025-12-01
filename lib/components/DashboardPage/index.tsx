@@ -16,7 +16,7 @@ export default function DashboardPage({ agents }: DashboardPageProps) {
 
   return (
     <div
-      className="flex flex-col h-screen bg-background text-foreground pt-16"
+      className="flex flex-col h-screen bg-background text-foreground"
     >
       {/* Header */}
       <PageHeader

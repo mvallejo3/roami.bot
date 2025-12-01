@@ -92,7 +92,7 @@ export default function KnowledgeBaseDetailsPageContent({
   }, [bucketName]);
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground pt-16">
+    <div className="flex flex-col h-screen bg-background text-foreground">
       {/* Header */}
       <PageHeader
         title={knowledge_base.name}

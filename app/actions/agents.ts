@@ -39,6 +39,10 @@ export interface UpdateKnowledgeBaseInput {
   knowledgeBaseUuid: string;
 }
 
+export interface AttachKnowledgeBaseInput {
+  knowledge_base_uuid: string;
+}
+
 /**
  * Get authorization header for API requests
  */
@@ -266,6 +270,51 @@ export async function createApiKey(
     console.error("Error creating API key:", error);
     throw new Error(
       error instanceof Error ? error.message : "Failed to create API key"
+    );
+  }
+}
+
+/**
+ * Attach a knowledge base to an agent
+ */
+export async function attachKnowledgeBase(
+  agentId: string,
+  input: AttachKnowledgeBaseInput
+): Promise<AgentResponse> {
+  if (!agentId || typeof agentId !== "string") {
+    throw new Error("Agent ID is required");
+  }
+  if (!input.knowledge_base_uuid || typeof input.knowledge_base_uuid !== "string") {
+    throw new Error("Knowledge base UUID is required");
+  }
+
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE_URL}/api/agents/${agentId}/attach-knowledgebase`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          knowledge_base_uuid: input.knowledge_base_uuid,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message ||
+          `Failed to attach knowledge base: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error attaching knowledge base:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to attach knowledge base"
     );
   }
 }

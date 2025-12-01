@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 export default async function DatasourcesPage() {
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground pt-16">
+    <div className="flex flex-col h-screen bg-background text-foreground">
       <PageHeader
         title="Datasources"
         description="Manage your datasources"

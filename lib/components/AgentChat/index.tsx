@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Message } from "@/lib/services/chatService";
 import { MarkdownRenderer } from "@/lib/components/MarkdownRenderer";
-import { useStandalone } from "@/lib/hooks/useStandalone";
 import { ChatService } from "@/lib/services/chatService";
 import PageHeader from "@/lib/components/PageHeader";
 import type { ApiAgent } from "@/lib/types/agent";
@@ -25,7 +24,6 @@ export default function AgentChat({ agent, apiKey, agentId }: AgentChatProps) {
   const [chatService, setChatService] = useState<ChatService | null>(null);
   const [isPending, startTransition] = useTransition();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const isStandalone = useStandalone();
   const router = useRouter();
 
   useEffect(() => {
@@ -201,7 +199,6 @@ export default function AgentChat({ agent, apiKey, agentId }: AgentChatProps) {
   return (
     <div
       className="flex flex-col h-screen bg-background text-foreground"
-      style={{ paddingTop: isStandalone ? "100px" : "64px" }}
     >
       {/* Header */}
       <PageHeader
@@ -212,7 +209,7 @@ export default function AgentChat({ agent, apiKey, agentId }: AgentChatProps) {
         rightAction={
           <Link
             href={`/agent/${agentUuid}/knowledgebase`}
-            className="bg-accent-primary text-foreground-bright p-2 rounded-lg hover:opacity-90 transition-opacity"
+            className="flex items-center bg-accent-primary text-foreground-bright p-2 rounded-lg hover:opacity-90 transition-opacity"
             aria-label="Go to Knowledgebase"
           >
             <svg

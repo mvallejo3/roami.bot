@@ -67,6 +67,22 @@ export const agentApi = createApi({
       }),
       invalidatesTags: ["Agent"],
     }),
+
+    // Attach a knowledge base to an agent
+    attachKnowledgeBase: builder.mutation<
+      AgentResponse,
+      { agentId: string; knowledge_base_uuid: string }
+    >({
+      query: ({ agentId, knowledge_base_uuid }) => ({
+        url: `/api/agents/${agentId}/attach-knowledgebase`,
+        method: "POST",
+        body: { knowledge_base_uuid },
+      }),
+      invalidatesTags: (result, error, { agentId }) => [
+        { type: "Agent", id: agentId },
+        "Agent",
+      ],
+    }),
   }),
 });
 
@@ -76,5 +92,6 @@ export const {
   useCreateAgentMutation,
   useUpdateAgentMutation,
   useDeleteAgentMutation,
+  useAttachKnowledgeBaseMutation,
 } = agentApi;
 
