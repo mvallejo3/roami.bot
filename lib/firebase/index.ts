@@ -3,6 +3,7 @@
  */
 export { default as app, auth } from "./config";
 export {
+  loginWithEmailPassword,
   loginWithGoogle,
   logout,
   getCurrentUser,

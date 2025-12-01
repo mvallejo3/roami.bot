@@ -10,14 +10,13 @@ import {
  * Firebase configuration
  */
 const firebaseConfig = {
-  apiKey: "AIzaSyBIJvreJtlT__dknkNZopKAx12u6mAJkF8",
-  authDomain: "photon-software-4ef7b.firebaseapp.com",
-  databaseURL: "https://photon-software-4ef7b.firebaseio.com",
-  projectId: "photon-software-4ef7b",
-  storageBucket: "photon-software-4ef7b.appspot.com",
-  messagingSenderId: "17878580864",
-  appId: "1:17878580864:web:b0b7f2147e0bc1bb1d3065",
-  measurementId: "G-7B4BRHVTL6",
+  apiKey: "AIzaSyANuMDJ0elIHVohtZhcgo2sZ_rpXaaCfCA",
+  authDomain: "roami-bot.firebaseapp.com",
+  projectId: "roami-bot",
+  storageBucket: "roami-bot.firebasestorage.app",
+  messagingSenderId: "619883347250",
+  appId: "1:619883347250:web:c7f5750fb357a7220c6b2b",
+  measurementId: "G-B6Y1MN4EEV"
 };
 
 /**

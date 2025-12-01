@@ -1,5 +1,6 @@
 import {
   signInWithPopup,
+  signInWithEmailAndPassword,
   GoogleAuthProvider,
   signOut,
   deleteUser,
@@ -17,9 +18,11 @@ const googleProvider = new GoogleAuthProvider();
 
 /**
  * Store auth token in cookie for server-side access
+ * @param forceRefresh - If true, forces token refresh even if not expired
  */
-async function setAuthTokenCookie(user: User): Promise<void> {
-  const token = await user.getIdToken();
+async function setAuthTokenCookie(user: User, forceRefresh = false): Promise<void> {
+  // Force refresh if requested, otherwise get current token (Firebase SDK auto-refreshes if expired)
+  const token = await user.getIdToken(forceRefresh);
   // Set cookie with 1 hour expiration (Firebase tokens expire after 1 hour)
   Cookies.set(AUTH_TOKEN_COOKIE, token, {
     expires: 1 / 24, // 1 hour
@@ -33,6 +36,20 @@ async function setAuthTokenCookie(user: User): Promise<void> {
  */
 function removeAuthTokenCookie(): void {
   Cookies.remove(AUTH_TOKEN_COOKIE);
+}
+
+/**
+ * Sign in with email and password
+ */
+export async function loginWithEmailPassword(
+  email: string,
+  password: string
+): Promise<UserCredential> {
+  const credential = await signInWithEmailAndPassword(auth, email, password);
+  if (credential.user) {
+    await setAuthTokenCookie(credential.user);
+  }
+  return credential;
 }
 
 /**
@@ -63,11 +80,12 @@ export function getCurrentUser(): User | null {
 
 /**
  * Refresh the auth token cookie (call this periodically or when token expires)
+ * Forces a token refresh to ensure we have a valid token
  */
-export async function refreshAuthToken(): Promise<void> {
+export async function refreshAuthToken(forceRefresh = true): Promise<void> {
   const user = auth.currentUser;
   if (user) {
-    await setAuthTokenCookie(user);
+    await setAuthTokenCookie(user, forceRefresh);
   }
 }
 
