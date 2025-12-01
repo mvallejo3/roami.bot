@@ -2,7 +2,13 @@
 
 import { API_BASE_URL, API_TOKEN } from "@/lib/utils/api-config";
 import { getServerToken } from "@/lib/firebase/server";
-import type { KnowledgeBasesListResponse } from "@/lib/types/knowledgebase";
+import type {
+  KnowledgeBasesListResponse,
+  CreateBucketInput,
+  BucketResponse,
+  CreateKnowledgeBaseInput,
+  KnowledgeBaseResponse,
+} from "@/lib/types/knowledgebase";
 
 export interface ChatResponse {
   answer: string;
@@ -227,6 +233,120 @@ export async function reindexKnowledgeBase(
     console.error("Error reindexing knowledge base:", error);
     throw new Error(
       error instanceof Error ? error.message : "Failed to reindex knowledge base"
+    );
+  }
+}
+
+/**
+ * Create a bucket for storing files
+ */
+export async function createBucket(
+  input: CreateBucketInput
+): Promise<BucketResponse> {
+  if (!input.name || typeof input.name !== "string") {
+    throw new Error("Bucket name is required");
+  }
+  if (!input.region || typeof input.region !== "string") {
+    throw new Error("Bucket region is required");
+  }
+
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE_URL}/api/buckets`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        name: input.name,
+        region: input.region,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `Failed to create bucket: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error creating bucket:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to create bucket"
+    );
+  }
+}
+
+/**
+ * Create a new knowledge base
+ * This function first creates a bucket, then creates the knowledge base
+ */
+export async function createKnowledgeBase(
+  input: CreateKnowledgeBaseInput
+): Promise<KnowledgeBaseResponse> {
+  if (!input.name || typeof input.name !== "string") {
+    throw new Error("Knowledge base name is required");
+  }
+  // if (!input.project_id || typeof input.project_id !== "string") {
+  //   throw new Error("Project ID is required");
+  // }
+  if (!input.embedding_model_uuid || typeof input.embedding_model_uuid !== "string") {
+    throw new Error("Embedding model UUID is required");
+  }
+  if (!input.database_id || typeof input.database_id !== "string") {
+    throw new Error("Database ID is required");
+  }
+  if (!input.datasources || !Array.isArray(input.datasources) || input.datasources.length === 0) {
+    throw new Error("At least one datasource is required");
+  }
+
+  try {
+    const headers = await getAuthHeaders();
+    
+    // Extract bucket info from datasources
+    const bucketInfo = input.datasources[0]?.spaces_data_source;
+    if (!bucketInfo) {
+      throw new Error("Invalid datasource configuration");
+    }
+
+    // First, create the bucket
+    const bucketResponse = await fetch(`${API_BASE_URL}/api/buckets`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        name: bucketInfo.bucket_name,
+        region: bucketInfo.region,
+      }),
+    });
+
+    if (!bucketResponse.ok) {
+      const errorData = await bucketResponse.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `Failed to create bucket: ${bucketResponse.statusText}`
+      );
+    }
+
+    // Then, create the knowledge base
+    const kbResponse = await fetch(`${API_BASE_URL}/api/knowledgebase`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(input),
+    });
+
+    if (!kbResponse.ok) {
+      const errorData = await kbResponse.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `Failed to create knowledge base: ${kbResponse.statusText}`
+      );
+    }
+
+    const data = await kbResponse.json();
+    return data;
+  } catch (error) {
+    console.error("Error creating knowledge base:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to create knowledge base"
     );
   }
 }

@@ -1,5 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { KnowledgeBasesListResponse } from "@/lib/types/knowledgebase";
+import type {
+  KnowledgeBasesListResponse,
+  CreateKnowledgeBaseInput,
+  KnowledgeBaseResponse,
+} from "@/lib/types/knowledgebase";
 
 export const knowledgebaseApi = createApi({
   reducerPath: "knowledgebaseApi",
@@ -16,8 +20,21 @@ export const knowledgebaseApi = createApi({
       }),
       providesTags: ["KnowledgeBase"],
     }),
+    // Create a new knowledge base
+    createKnowledgeBase: builder.mutation<
+      KnowledgeBaseResponse,
+      CreateKnowledgeBaseInput
+    >({
+      query: (body) => ({
+        url: "/api/knowledgebase",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["KnowledgeBase"],
+    }),
   }),
 });
 
-export const { useListKnowledgeBasesQuery } = knowledgebaseApi;
+export const { useListKnowledgeBasesQuery, useCreateKnowledgeBaseMutation } =
+  knowledgebaseApi;
 

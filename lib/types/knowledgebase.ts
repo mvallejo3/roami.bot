@@ -42,3 +42,35 @@ export interface KnowledgeBasesListResponse {
   status: string;
 }
 
+export interface CreateBucketInput {
+  name: string;
+  region: string;
+}
+
+export interface BucketResponse {
+  bucket: {
+    name: string;
+    region: string;
+  };
+  status: string;
+}
+
+export interface CreateKnowledgeBaseInput {
+  name: string;
+  description?: string;
+  project_id?: string;
+  embedding_model_uuid?: string;
+  database_id?: string;
+  datasources: Array<{
+    spaces_data_source: {
+      bucket_name: string;
+      region: string;
+    };
+  }>;
+}
+
+export interface KnowledgeBaseResponse {
+  knowledge_base: KnowledgeBase;
+  status: string;
+}
+
