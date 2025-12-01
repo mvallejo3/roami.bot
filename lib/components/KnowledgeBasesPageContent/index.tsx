@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import PageHeader from "@/lib/components/PageHeader";
 import NewKnowledgeBaseForm from "@/lib/components/NewKnowledgeBaseForm";
 import { useCreateKnowledgeBaseMutation } from "@/store/features/knowledgebase/knowledgebaseApi";
@@ -206,12 +207,13 @@ export default function KnowledgeBasesPageContent({
                               : "—"}
                           </td>
                           <td className="px-4 py-3 text-right">
-                            <button
-                              className="text-accent-primary hover:opacity-80 transition-opacity text-sm font-medium px-3 py-1 rounded hover:bg-accent-primary/10"
+                            <Link
+                              href={`/knowledge-bases/${kb.uuid}`}
+                              className="text-accent-primary hover:opacity-80 transition-opacity text-sm font-medium px-3 py-1 rounded hover:bg-accent-primary/10 inline-block"
                               aria-label={`View details for ${kb.name}`}
                             >
                               View
-                            </button>
+                            </Link>
                           </td>
                         </tr>
                       ))}

@@ -8,6 +8,7 @@ import type {
   BucketResponse,
   CreateKnowledgeBaseInput,
   KnowledgeBaseResponse,
+  KnowledgeBaseDetailsResponse,
 } from "@/lib/types/knowledgebase";
 
 export interface ChatResponse {
@@ -26,13 +27,18 @@ export interface FilesResponse {
   files: FileInfo[];
 }
 
-export async function getFiles(): Promise<FilesResponse> {
+export async function getFiles(bucketName?: string): Promise<FilesResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/files`, {
+    const url = bucketName
+      ? `${API_BASE_URL}/api/files?bucket=${encodeURIComponent(bucketName)}`
+      : `${API_BASE_URL}/api/files`;
+    
+    const headers = await getAuthHeaders();
+    const response = await fetch(url, {
       method: "GET",
       headers: {
+        ...headers,
         "Accept": "application/json",
-        "Authorization": `Bearer ${API_TOKEN}`,
       },
     });
 
@@ -44,7 +50,9 @@ export async function getFiles(): Promise<FilesResponse> {
     return data;
   } catch (error) {
     console.error("Error fetching files:", error);
-    throw new Error("Failed to fetch files");
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to fetch files"
+    );
   }
 }
 
@@ -176,6 +184,40 @@ export async function listKnowledgeBases(): Promise<KnowledgeBasesListResponse> 
     console.error("Error listing knowledge bases:", error);
     throw new Error(
       error instanceof Error ? error.message : "Failed to list knowledge bases"
+    );
+  }
+}
+
+/**
+ * Get knowledge base details by ID
+ */
+export async function getKnowledgeBaseDetails(
+  id: string
+): Promise<KnowledgeBaseDetailsResponse> {
+  if (!id || typeof id !== "string") {
+    throw new Error("Knowledge base ID is required");
+  }
+
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE_URL}/api/knowledgebase/${id}`, {
+      method: "GET",
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `Failed to fetch knowledge base details: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching knowledge base details:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to fetch knowledge base details"
     );
   }
 }
