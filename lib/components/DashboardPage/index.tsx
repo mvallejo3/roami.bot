@@ -20,7 +20,7 @@ export default function DashboardPage({ agents }: DashboardPageProps) {
     >
       {/* Header */}
       <PageHeader
-        title="Roami"
+        title="Agents"
         description="AI Agent Dashboard"
         rightAction={
           <button

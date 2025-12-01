@@ -201,7 +201,7 @@ export default function AgentChat({ agent, apiKey, agentId }: AgentChatProps) {
   return (
     <div
       className="flex flex-col h-screen bg-background text-foreground"
-      style={{ paddingTop: isStandalone ? "36px" : "0" }}
+      style={{ paddingTop: isStandalone ? "100px" : "64px" }}
     >
       {/* Header */}
       <PageHeader
