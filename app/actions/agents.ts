@@ -9,7 +9,7 @@ import type {
   CreateApiKeyInput,
   CreateApiKeyResponse,
 } from "@/lib/types/agent";
-import { getServerToken } from "@/lib/firebase/server";
+import { getAuthHeaders } from "@/lib/utils/auth-headers";
 
 /**
  * Response types matching the API structure
@@ -43,27 +43,6 @@ export interface AttachKnowledgeBaseInput {
   knowledge_base_uuid: string;
 }
 
-/**
- * Get authorization header for API requests
- */
-async function getAuthHeaders(): Promise<HeadersInit> {
-  const token = await getServerToken();
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-  };
-
-  // Use Firebase token if available, otherwise fall back to hardcoded token for now
-  // TODO: Replace with proper API key management
-  headers["Authorization"] = `Bearer ${API_TOKEN}`;
-  // if (token) {
-  //   headers["Authorization"] = `Bearer ${token}`;
-  // } else {
-  //   headers["Authorization"] = `Bearer ${API_TOKEN}`;
-  // }
-
-  return headers;
-}
 
 /**
  * List all agents

@@ -2,7 +2,7 @@
 
 import { API_BASE_URL, API_TOKEN } from "@/lib/utils/api-config";
 import type { Model } from "@/lib/types/model";
-import { getServerToken } from "@/lib/firebase/server";
+import { getAuthHeaders } from "@/lib/utils/auth-headers";
 
 /**
  * Response types matching the API structure
@@ -23,26 +23,6 @@ export interface ModelsListResponse {
   status: string;
 }
 
-/**
- * Get authorization header for API requests
- */
-async function getAuthHeaders(): Promise<HeadersInit> {
-  const token = await getServerToken();
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-  };
-
-  // Use Firebase token if available, otherwise fall back to hardcoded token for now
-  // TODO: Replace with proper API key management
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  } else {
-    headers["Authorization"] = `Bearer ${API_TOKEN}`;
-  }
-
-  return headers;
-}
 
 /**
  * List all public models

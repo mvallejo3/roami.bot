@@ -1,7 +1,7 @@
 "use server";
 
 import { API_BASE_URL, API_TOKEN } from "@/lib/utils/api-config";
-import { getServerToken } from "@/lib/firebase/server";
+import { getAuthHeaders } from "@/lib/utils/auth-headers";
 import type {
   KnowledgeBasesListResponse,
   CreateBucketInput,
@@ -139,26 +139,6 @@ export interface ReindexKnowledgeBaseParams {
   data_source_uuids?: string[];
 }
 
-/**
- * Get authorization header for API requests
- */
-async function getAuthHeaders(): Promise<HeadersInit> {
-  const token = await getServerToken();
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-  };
-
-  // Use Firebase token if available, otherwise fall back to hardcoded token for now
-  // TODO: Replace with proper API key management
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  } else {
-    headers["Authorization"] = `Bearer ${API_TOKEN}`;
-  }
-
-  return headers;
-}
 
 /**
  * List all knowledge bases
