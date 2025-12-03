@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import PageHeader from "@/lib/components/PageHeader";
 import type { KnowledgeBaseDetailsResponse } from "@/lib/types/knowledgebase";
 import type { FileInfo, FilesResponse } from "@/app/actions/knowledgebase";
-import { getFiles } from "@/app/actions/knowledgebase";
+import { getFiles, uploadFiles } from "@/app/actions/knowledgebase";
 
 interface KnowledgeBaseDetailsPageContentProps {
   knowledgeBaseDetails: KnowledgeBaseDetailsResponse;
@@ -60,6 +60,12 @@ export default function KnowledgeBaseDetailsPageContent({
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [isLoadingFiles, setIsLoadingFiles] = useState(true);
   const [filesError, setFilesError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { knowledge_base, data_sources } = knowledgeBaseDetails;
   
@@ -90,6 +96,95 @@ export default function KnowledgeBaseDetailsPageContent({
 
     fetchFiles();
   }, [bucketName]);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current);
+      }
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = event.target.files;
+    if (!selectedFiles || selectedFiles.length === 0) {
+      return;
+    }
+
+    if (!bucketName) {
+      setUploadError("No bucket name available. Cannot upload files.");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setUploadError(null);
+      setUploadSuccess(null);
+      
+      // Clear any existing timeouts
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current);
+        successTimeoutRef.current = null;
+      }
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+        errorTimeoutRef.current = null;
+      }
+
+      const formData = new FormData();
+      for (let i = 0; i < selectedFiles.length; i++) {
+        formData.append("files", selectedFiles[i]);
+      }
+
+      const result = await uploadFiles(formData, bucketName);
+
+      if (result.successful > 0) {
+        const successMessage = `Successfully uploaded ${result.successful} file${result.successful > 1 ? "s" : ""}`;
+        setUploadSuccess(successMessage);
+        // Refresh the file list
+        const filesData: FilesResponse = await getFiles(bucketName);
+        setFiles(filesData.files || []);
+        // Clear the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        // Clear success message after 5 seconds
+        successTimeoutRef.current = setTimeout(() => {
+          setUploadSuccess(null);
+          successTimeoutRef.current = null;
+        }, 5000);
+      }
+
+      if (result.failed > 0) {
+        const failedFiles = result.results
+          .filter((r) => !r.success)
+          .map((r) => r.filename)
+          .join(", ");
+        const errorMessage = `Failed to upload ${result.failed} file${result.failed > 1 ? "s" : ""}: ${failedFiles}`;
+        setUploadError(errorMessage);
+        // Clear error message after 8 seconds
+        errorTimeoutRef.current = setTimeout(() => {
+          setUploadError(null);
+          errorTimeoutRef.current = null;
+        }, 8000);
+      }
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      setUploadError(
+        error instanceof Error ? error.message : "Failed to upload files"
+      );
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
@@ -271,9 +366,42 @@ export default function KnowledgeBaseDetailsPageContent({
 
           {/* Files List */}
           <div className="bg-background-secondary border border-divider rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4">
-              Files {bucketName && `(${bucketName})`}
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-foreground">
+                Files {bucketName && `(${bucketName})`}
+              </h2>
+              {bucketName && (
+                <div className="flex items-center gap-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    disabled={isUploading}
+                    aria-label="Select files to upload"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleUploadClick}
+                    disabled={isUploading}
+                    className="px-4 py-2 bg-accent-primary text-white rounded-lg hover:bg-accent-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                  >
+                    {isUploading ? "Uploading..." : "Upload Files"}
+                  </button>
+                </div>
+              )}
+            </div>
+            {uploadSuccess && (
+              <div className="mb-4 p-3 bg-accent-primary/20 text-accent-primary rounded-lg text-sm">
+                {uploadSuccess}
+              </div>
+            )}
+            {uploadError && (
+              <div className="mb-4 p-3 bg-accent-error/20 text-accent-error rounded-lg text-sm">
+                {uploadError}
+              </div>
+            )}
             {isLoadingFiles ? (
               <div className="flex items-center justify-center py-8">
                 <p className="text-foreground-secondary">Loading files...</p>

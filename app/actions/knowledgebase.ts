@@ -104,9 +104,13 @@ export interface UploadFilesResponse {
   folder: string | null;
 }
 
-export async function uploadFiles(formData: FormData): Promise<UploadFilesResponse> {
+export async function uploadFiles(formData: FormData, bucketName?: string): Promise<UploadFilesResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/files`, {
+    const url = bucketName
+      ? `${API_BASE_URL}/api/files?bucket=${encodeURIComponent(bucketName)}`
+      : `${API_BASE_URL}/api/files`;
+    
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Accept": "application/json",
