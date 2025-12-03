@@ -14,7 +14,6 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Agents", href: "/" },
   { label: "Knowledge Bases", href: "/knowledge-bases" },
-  { label: "Datasources", href: "/datasources" },
 ];
 
 /**
